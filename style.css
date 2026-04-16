@@ -62,25 +62,38 @@ button {
 }
 
 .header-cell {
-    text-align: center;
-    font-size: 22px;
+    font-size: 24px;
     font-weight: bold;
     color: white;
-    padding: 5px;
-    border-radius: 5px;
-    margin-bottom: 8px;
+    padding: 8px 0; /* Padding em cima e embaixo, 0 nas laterais */
+    border-radius: 6px;
+    margin-bottom: 15px;
+    text-align: center;
+    
+    /* O SEGREDO ESTÁ AQUI: */
+    width: 80px;      /* Largura fixa igual para todas */
+    display: block;   /* Garante que o width seja respeitado */
 }
 
-/* Cores das Letras conforme pedido */
-.col-b .header-cell, .col-n .header-cell, .col-o .header-cell { background: var(--azul); }
-.col-i .header-cell, .col-g .header-cell { background: var(--amarelo); color: var(--azul); }
+.col-b .header-cell, 
+.col-n .header-cell, 
+.col-o .header-cell { 
+    background-color: var(--azul); 
+}
+
+.col-i .header-cell, 
+.col-g .header-cell { 
+    background-color: var(--amarelo); 
+    color: var(--azul); 
+}
 
 /* --- Ajuste para Centralizar as Bolinhas --- */
 
 .bingo-column {
     display: flex;
     flex-direction: column;
-    align-items: center; /* Centraliza o cabeçalho e o grupo de bolinhas */
+    align-items: center; 
+    min-width: 100px; /* Dá um pouco mais de respiro entre as colunas */
 }
 
 .number-cells {
