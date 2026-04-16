@@ -1,135 +1,210 @@
+/* --- style.css (Versão Profissional e Compacta) --- */
+
+/* Variáveis de Cor (Paleta Casa de Negócios) */
 :root {
-    --azul: #002d53;
+    --azul-escuro: #002d53;
     --amarelo: #f3ab00;
-    --cinza: #f4f4f4;
+    --cinza-fundo: #f8f9fa;
+    --cinza-borda: #ddd;
+    --branco: #fff;
+    --vermelho-alerta: #e74c3c;
+    --verde-sucesso: #2ecc71;
 }
 
 body {
-    font-family: sans-serif;
+    font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    background-color: var(--cinza-fundo);
     margin: 0;
-    background-color: #fff;
+    padding: 20px;
+    color: #333;
     display: flex;
     justify-content: center;
 }
 
 .container-principal {
     width: 100%;
-    max-width: 1000px;
-    padding: 10px;
+    max-width: 1100px;
+    background: var(--branco);
+    padding: 20px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+    border-radius: 12px;
 }
 
-/* TOPO COMPACTO */
+/* --- TOPO --- */
 .barra-topo {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    border-bottom: 2px solid var(--cinza);
-    padding-bottom: 5px;
+    border-bottom: 2px solid #eee;
+    padding-bottom: 15px;
+    margin-bottom: 20px;
 }
 
-.logo-site { max-width: 180px; }
+.logo-site { max-width: 220px; height: auto; }
 
 .numero-grande-header {
-    font-size: 50px;
+    font-size: 60px;
     font-weight: bold;
-    color: var(--azul);
-    background: var(--cinza);
-    width: 80px;
-    height: 80px;
+    color: var(--azul-escuro);
+    background: #f1f1f1;
+    width: 90px;
+    height: 90px;
     display: flex;
     align-items: center;
     justify-content: center;
-    border-radius: 10px;
+    border-radius: 12px;
 }
 
-/* BOTOES */
-.area-controles { text-align: left; margin: 10px 0; }
-button {
+/* --- PAINEL DE GESTÃO DE CARTELAS --- */
+.painel-cartelas {
+    background-color: #fcfcfc;
+    border: 1px solid #eee;
+    padding: 15px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+}
+
+.painel-cartelas h2 {
+    font-size: 18px;
+    color: var(--azul-escuro);
+    margin-top: 0;
+    margin-bottom: 15px;
+}
+
+.controles-cartela, .controles-jogo {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 10px;
+}
+
+.painel-cartelas input[type="number"] {
+    width: 70px;
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    font-size: 16px;
+}
+
+.painel-cartelas button {
     padding: 8px 15px;
     cursor: pointer;
     border: none;
     border-radius: 5px;
     font-weight: bold;
+    font-size: 14px;
+    transition: background 0.2s;
 }
-#btn-sortear { background: var(--azul); color: white; }
-#btn-reiniciar { background: #ddd; margin-left: 10px; }
 
-/* O TABULEIRO EM 2 COLUNAS POR LETRA */
+#btn-gerar-pdf { background-color: var(--amarelo); color: var(--azul-escuro); }
+#btn-gerar-pdf:hover { background-color: #d19300; }
+
+#btn-iniciar-jogo { background-color: var(--azul-escuro); color: white; }
+#btn-iniciar-jogo:hover { background-color: #00457a; }
+
+.status-bingo {
+    font-weight: bold;
+    margin-top: 10px;
+    padding: 8px;
+    background-color: #eee;
+    border-radius: 5px;
+    text-align: center;
+}
+
+.status-bingo.alerta-bingo {
+    background-color: var(--vermelho-alerta);
+    color: white;
+    font-size: 18px;
+    animation: piscar 1s infinite;
+}
+
+@keyframes piscar { 0%, 100% { opacity: 1; } 50% { opacity: 0.7; } }
+
+/* --- ÁREA DE SORTEIO --- */
+.area-sorteio.escondida { display: none; }
+
+.botoes-sorteio { text-align: center; margin-bottom: 20px; }
+
+.botoes-sorteio button {
+    padding: 12px 25px;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+    border: none;
+    border-radius: 8px;
+    margin: 0 10px;
+}
+
+#btn-sortear { background-color: var(--azul-escuro); color: white; }
+#btn-reiniciar { background-color: #ddd; color: #555; }
+
+/* --- TABULEIRO COMPACTO E CENTRALIZADO --- */
 .bingo-board {
     display: grid;
     grid-template-columns: repeat(5, 1fr);
-    gap: 8px;
+    gap: 10px;
+    width: 100%;
 }
-
-.header-cell {
-    font-size: 24px;
-    font-weight: bold;
-    color: white;
-    padding: 8px 0; /* Padding em cima e embaixo, 0 nas laterais */
-    border-radius: 6px;
-    margin-bottom: 15px;
-    text-align: center;
-    
-    /* O SEGREDO ESTÁ AQUI: */
-    width: 80px;      /* Largura fixa igual para todas */
-    display: block;   /* Garante que o width seja respeitado */
-}
-
-.col-b .header-cell, 
-.col-n .header-cell, 
-.col-o .header-cell { 
-    background-color: var(--azul); 
-}
-
-.col-i .header-cell, 
-.col-g .header-cell { 
-    background-color: var(--amarelo); 
-    color: var(--azul); 
-}
-
-/* --- Ajuste para Centralizar as Bolinhas --- */
 
 .bingo-column {
     display: flex;
     flex-direction: column;
-    align-items: center; 
-    min-width: 100px; /* Dá um pouco mais de respiro entre as colunas */
+    align-items: center; /* Centraliza tudo na coluna */
 }
+
+.header-cell {
+    font-size: 26px;
+    font-weight: bold;
+    color: white;
+    padding: 8px 0;
+    border-radius: 8px;
+    margin-bottom: 15px;
+    text-align: center;
+    width: 90px; /* Largura fixa para todas */
+}
+
+/* Cores das Letras (Azul: B,N,O | Amarelo: I,G) */
+.col-b .header-cell, .col-n .header-cell, .col-o .header-cell { background-color: var(--azul-escuro); }
+.col-i .header-cell, .col-g .header-cell { background-color: var(--amarelo); color: var(--azul-escuro); }
 
 .number-cells {
     display: grid;
-    grid-template-columns: repeat(2, 32px); /* Define duas colunas de tamanho fixo */
-    gap: 6px;
-    justify-content: center; /* Centraliza o grid de bolinhas horizontalmente */
-    width: 100%;
+    grid-template-columns: repeat(2, 35px); /* Duas colunas fixas de 35px */
+    gap: 5px;
+    justify-content: center; /* Centraliza o grid de bolinhas */
 }
 
 .cell {
-    width: 32px;
-    height: 32px;
+    width: 35px;
+    height: 35px;
     border-radius: 50%;
-    background: #f9f9f9;
-    border: 1px solid #eee;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 13px;
+    background-color: #fcfcfc;
     color: #999;
-    /* Remove qualquer margem que possa estar empurrando para o lado */
-    margin: 0 auto; 
+    border: 1px solid var(--cinza-borda);
+    font-size: 15px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    transition: all 0.3s;
 }
 
-/* Estilo de sorteado - Invertendo cores para contraste */
+/* --- CORES DAS BOLINHAS SORTEADAS --- */
+.cell.drawn {
+    font-weight: bold;
+    transform: scale(1.1);
+    box-shadow: 0 3px 6px rgba(0,0,0,0.15);
+}
+
+/* Onde a letra é azul, a bolinha é amarela */
 .col-b .cell.drawn, .col-n .cell.drawn, .col-o .cell.drawn {
-    background: var(--amarelo);
-    color: var(--azul);
-    font-weight: bold;
-    border-color: var(--amarelo);
+    background-color: var(--amarelo);
+    color: var(--azul-escuro);
+    border-color: #d19300;
 }
 
+/* Onde a letra é amarela, a bolinha é azul */
 .col-i .cell.drawn, .col-g .cell.drawn {
-    background: var(--azul);
+    background-color: var(--azul-escuro);
     color: var(--amarelo);
-    font-weight: bold;
-    border-color: var(--azul);
+    border-color: #001a30;
 }
