@@ -23,15 +23,15 @@ body {
 }
 
 .container-principal {
-    width: 90%;
-    max-width: 1000px;
+    width: 95%;
+    max-width: 900px;
     background: white;
     padding: 30px;
     box-shadow: 0 5px 15px rgba(0,0,0,0.08);
     border-radius: 12px;
 }
 
-/* --- BARRA DO TOPO COM LOGO E ÚLTIMO NÚMERO --- */
+/* --- BARRA DO TOPO --- */
 .barra-topo {
     display: flex;
     justify-content: space-between;
@@ -41,32 +41,15 @@ body {
     margin-bottom: 25px;
 }
 
-.logo-container {
-    flex: 0 0 auto;
-}
-
 .logo-site {
-    max-width: 280px; /* Ajuste conforme necessário */
+    max-width: 250px;
     height: auto;
-}
-
-.display-sorteio-header {
-    text-align: right;
-    display: flex;
-    flex-direction: column;
-    align-items: flex-end;
-}
-
-.label-ultimo {
-    font-size: 14px;
-    color: #666;
-    margin-bottom: 5px;
 }
 
 .numero-grande-header {
     font-size: 80px;
     font-weight: bold;
-    color: var(--cor-primaria-azul); /* Cor principal da marca */
+    color: var(--cor-primaria-azul);
     background: var(--cor-cinza-claro);
     display: flex;
     justify-content: center;
@@ -74,23 +57,12 @@ body {
     width: 120px;
     height: 120px;
     border-radius: 15px;
-    box-shadow: inset 0 2px 5px rgba(0,0,0,0.05);
 }
 
-/* --- ÁREA DE CONTROLES (TÍTULO E BOTÕES) --- */
+/* --- ÁREA DE CONTROLES --- */
 .area-controles {
     text-align: center;
     margin-bottom: 30px;
-}
-
-.area-controles h1 {
-    font-size: 26px;
-    color: var(--cor-primaria-azul);
-    margin-top: 0;
-}
-
-.botoes {
-    margin-top: 20px;
 }
 
 .botoes button {
@@ -104,39 +76,23 @@ body {
     transition: all 0.2s ease;
 }
 
-/* Botão Sortear (Usando o azul) */
 #btn-sortear { 
     background-color: var(--cor-primaria-azul); 
     color: white; 
 }
-#btn-sortear:hover { 
-    background-color: #00457a; /* Versão um pouco mais clara */
-    transform: translateY(-2px);
-}
 
-/* Botão Reiniciar (Uma versão mais suave do amarelo para não brigar) */
 #btn-reiniciar { 
-    background-color: #e2e6ea; /* Cinza claro */
+    background-color: #e2e6ea;
     color: #666; 
 }
-#btn-reiniciar:hover { 
-    background-color: #ced4da; /* Cinza mais escuro */
-}
 
-/* --- ESTILOS DA TABELA BINGO (TABULEIRO) --- */
+/* --- TABULEIRO BINGO --- */
 .bingo-board {
     display: grid;
-    grid-template-columns: repeat(5, 1fr); /* 5 colunas */
+    grid-template-columns: repeat(5, 1fr);
     gap: 15px;
-    width: 100%;
 }
 
-.bingo-column {
-    display: flex;
-    flex-direction: column;
-}
-
-/* Células de Cabeçalho (Letras B, I, N, G, O) */
 .header-cell {
     font-size: 30px;
     font-weight: 800;
@@ -147,50 +103,64 @@ body {
     text-align: center;
 }
 
-/* Cores dos Cabeçalhos (Paleta Baseada na Marca - Azul/Amarelo) */
-.col-b .header-cell { background-color: #00457a; } /* Azul intermediário */
-.col-i .header-cell { background-color: #27ae60; } /* Verde para variar, mas pode ser azul se preferir */
-.col-n .header-cell { background-color: #e67e22; } /* Laranja intermediário */
-.col-g .header-cell { background-color: var(--cor-primaria-azul); } /* Azul Escuro */
-.col-o .header-cell { background-color: #c0392b; } /* Vermelho para variar */
+/* --- APLICAÇÃO DAS CORES NAS LETRAS (CONFORME SOLICITADO) --- */
+.col-b .header-cell, 
+.col-n .header-cell, 
+.col-o .header-cell { 
+    background-color: var(--cor-primaria-azul); 
+}
 
-/* Contêiner das bolinhas dentro de cada coluna */
+.col-i .header-cell, 
+.col-g .header-cell { 
+    background-color: var(--cor-secundaria-amarela); 
+    color: var(--cor-primaria-azul); /* Texto azul no fundo amarelo para ler melhor */
+}
+
+/* Contêiner das bolinhas */
 .number-cells {
     display: flex;
     flex-direction: column;
-    gap: 5px; /* Espaço entre as bolinhas */
-    align-items: center; /* Centraliza as bolinhas na coluna */
+    gap: 5px;
+    align-items: center;
 }
 
-/* --- ESTILO DAS BOLINHAS --- */
+/* Estilo das bolinhas apagadas */
 .cell {
-    /* Forma circular */
-    width: 40px;         /* Largura fixa */
-    height: 40px;        /* Altura fixa (igual à largura) */
-    border-radius: 50%; /* Faz ser um círculo */
-    
-    /* Cores iniciais (bolinha cinza neutra) */
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
     background-color: #fcfcfc;
     color: #888;
-    border: 1px solid var(--cor-borda); /* Borda sutil */
-
-    /* Fonte e alinhamento do número dentro da bolinha */
-    font-size: 17px;
+    border: 1px solid var(--cor-borda);
+    font-size: 16px;
     display: flex;
     justify-content: center;
-    align-items: center; /* Centraliza o número verticalmente e horizontalmente */
-    
-    /* Animação suave */
-    transition: all 0.3s ease-out;
-    box-sizing: border-box; /* Garante que a borda não aumente o tamanho */
+    align-items: center;
+    transition: all 0.3s ease;
 }
 
-/* Estado: Número Sorteado (Bolinha Acordada - Usando o Amarelo da Marca) */
-.cell.drawn {
-    background-color: var(--cor-secundaria-amarela); /* Amarelo da marca */
-    color: var(--cor-primaria-azul); /* Texto azul escuro para contraste */
-    font-weight: bold;
+/* --- CORES DAS BOLINHAS SORTEADAS --- */
+
+/* Bolinhas das colunas B, N, O (Ficam amarelas com texto azul quando sorteadas) */
+.col-b .cell.drawn, 
+.col-n .cell.drawn, 
+.col-o .cell.drawn {
+    background-color: var(--cor-secundaria-amarela);
+    color: var(--cor-primaria-azul);
     border-color: #d19300;
-    transform: scale(1.15) translateY(-2px); /* Dá um pulo e levanta */
-    box-shadow: 0 4px 8px rgba(0,0,0,0.2); /* Sombra mais forte */
+}
+
+/* Bolinhas das colunas I e G (Ficam azuis com texto amarelo quando sorteadas) */
+.col-i .cell.drawn, 
+.col-g .cell.drawn {
+    background-color: var(--cor-primaria-azul);
+    color: var(--cor-secundaria-amarela);
+    border-color: #001a30;
+}
+
+/* Efeito de destaque comum a todas as sorteadas */
+.cell.drawn {
+    font-weight: bold;
+    transform: scale(1.15);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
 }
