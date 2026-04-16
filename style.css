@@ -1,29 +1,107 @@
-body { font-family: sans-serif; text-align: center; background: #f0f0f0; }
-.container { max-width: 800px; margin: auto; }
-#numero-sorteado { font-size: 80px; font-weight: bold; color: #e74c3c; margin: 20px; }
-
-.grid-bingo {
-    display: grid;
-    grid-template-columns: repeat(10, 1fr);
-    gap: 5px;
-    margin-top: 20px;
-}
-
-.bola {
-    padding: 10px;
-    background: white;
-    border: 1px solid #ccc;
-    border-radius: 50%;
-    width: 30px;
-    height: 30px;
+/* Estilos Gerais */
+body {
+    font-family: Arial, sans-serif;
+    background-color: #fcfcfc;
+    margin: 0;
     display: flex;
-    align-items: center;
     justify-content: center;
+    align-items: center;
+    min-height: 100vh;
 }
 
-.sorteada {
-    background-color: #2ecc71;
+.container-principal {
+    width: 90%;
+    max-width: 900px;
+    background: white;
+    padding: 20px;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    border-radius: 8px;
+    text-align: center;
+}
+
+header {
+    margin-bottom: 20px;
+    padding-bottom: 20px;
+    border-bottom: 2px solid #eee;
+}
+
+.numero-grande {
+    font-size: 70px;
+    font-weight: bold;
+    color: #333;
+    background: #f0f0f0;
+    display: inline-block;
+    padding: 10px 30px;
+    border-radius: 10px;
+    margin: 15px 0;
+}
+
+.botoes button {
+    padding: 10px 20px;
+    font-size: 16px;
+    cursor: pointer;
+    margin: 0 5px;
+    border: none;
+    border-radius: 5px;
+    transition: background 0.2s;
+}
+
+#btn-sortear { background-color: #3498db; color: white; }
+#btn-sortear:hover { background-color: #2980b9; }
+
+#btn-reiniciar { background-color: #e74c3c; color: white; }
+#btn-reiniciar:hover { background-color: #c0392b; }
+
+/* Estilos da Tabela Bingo */
+.bingo-board {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 15px;
+    width: 100%;
+}
+
+.bingo-column {
+    display: flex;
+    flex-direction: column;
+}
+
+/* Células de Cabeçalho (Letras B, I, N, G, O) */
+.header-cell {
+    font-size: 24px;
+    font-weight: bold;
     color: white;
-    transform: scale(1.1);
-    transition: 0.3s;
+    padding: 10px;
+    border-radius: 4px;
+    margin-bottom: 5px;
+}
+
+/* Cores dos Cabeçalhos */
+.col-b .header-cell { background-color: #0076c0; }
+.col-i .header-cell { background-color: #16a085; }
+.col-n .header-cell { background-color: #c99300; }
+.col-g .header-cell { background-color: #2d66cf; }
+.col-o .header-cell { background-color: #db0056; }
+
+/* Células de Número */
+.number-cells {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.cell {
+    background-color: #f7f7f7;
+    color: #777;
+    font-size: 16px;
+    padding: 8px;
+    border-radius: 4px;
+    transition: all 0.2s ease-out;
+}
+
+/* Estado: Número Sorteado */
+.cell.drawn {
+    background-color: #2ecc71; /* Cor de destaque (Verde) */
+    color: white;
+    font-weight: bold;
+    transform: scale(1.05);
 }
