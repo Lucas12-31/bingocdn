@@ -1,22 +1,25 @@
-/* --- style.css (Versão Profissional e Compacta) --- */
+/* --- style.css (Versão Design Moderno e Arredondado) --- */
 
 /* Variáveis de Cor (Paleta Casa de Negócios) */
 :root {
     --azul-escuro: #002d53;
     --amarelo: #f3ab00;
-    --cinza-fundo: #f8f9fa;
-    --cinza-borda: #ddd;
-    --branco: #fff;
+    --cinza-fundo: #f0f2f5; /* Cinza bem claro para o fundo da página */
+    --cinza-borda: #e1e4e8;
+    --branco: #ffffff;
     --vermelho-alerta: #e74c3c;
     --verde-sucesso: #2ecc71;
+    --texto-principal: #333;
+    --texto-suave: #666;
 }
 
+/* Estilos Gerais */
 body {
     font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
     background-color: var(--cinza-fundo);
     margin: 0;
     padding: 20px;
-    color: #333;
+    color: var(--texto-principal);
     display: flex;
     justify-content: center;
 }
@@ -25,9 +28,10 @@ body {
     width: 100%;
     max-width: 1100px;
     background: var(--branco);
-    padding: 20px;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.05);
-    border-radius: 12px;
+    padding: 30px;
+    /* BORDA ARREDONDADA E SOMBRA SUAVE NO CONTAINER PRINCIPAL */
+    border-radius: 20px;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.05);
 }
 
 /* --- TOPO --- */
@@ -35,132 +39,189 @@ body {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    border-bottom: 2px solid #eee;
-    padding-bottom: 15px;
-    margin-bottom: 20px;
+    border-bottom: 2px solid var(--cinza-borda);
+    padding-bottom: 20px;
+    margin-bottom: 25px;
 }
 
-.logo-site { max-width: 220px; height: auto; }
+.logo-container {
+    flex: 0 0 auto;
+}
+
+.logo-site {
+    max-width: 200px; /* Ajuste conforme necessário */
+    height: auto;
+}
+
+.display-sorteio-header {
+    text-align: right;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+}
+
+.label-ultimo {
+    font-size: 14px;
+    color: var(--texto-suave);
+    margin-bottom: 8px;
+}
 
 .numero-grande-header {
-    font-size: 60px;
+    font-size: 55px;
     font-weight: bold;
     color: var(--azul-escuro);
     background: #f1f1f1;
-    width: 90px;
-    height: 90px;
+    width: 100px;
+    height: 100px;
     display: flex;
-    align-items: center;
     justify-content: center;
-    border-radius: 12px;
+    align-items: center;
+    /* BORDA ARREDONDADA NO DISPLAY DO NÚMERO */
+    border-radius: 15px;
+    box-shadow: inset 0 2px 5px rgba(0,0,0,0.05);
 }
 
 /* --- PAINEL DE GESTÃO DE CARTELAS --- */
 .painel-cartelas {
     background-color: #fcfcfc;
     border: 1px solid #eee;
-    padding: 15px;
-    border-radius: 8px;
-    margin-bottom: 20px;
+    padding: 20px;
+    /* BORDA ARREDONDADA NO PAINEL */
+    border-radius: 15px;
+    margin-bottom: 25px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.02);
 }
 
 .painel-cartelas h2 {
-    font-size: 18px;
+    font-size: 19px;
     color: var(--azul-escuro);
     margin-top: 0;
-    margin-bottom: 15px;
+    margin-bottom: 18px;
+    font-weight: 600;
 }
 
 .controles-cartela, .controles-jogo {
     display: flex;
     align-items: center;
-    gap: 10px;
-    margin-bottom: 10px;
+    gap: 12px;
+    margin-bottom: 12px;
+}
+
+.painel-cartelas label {
+    font-size: 15px;
+    color: var(--texto-suave);
 }
 
 .painel-cartelas input[type="number"] {
-    width: 70px;
-    padding: 8px;
+    width: 80px;
+    padding: 10px;
     border: 1px solid #ccc;
-    border-radius: 5px;
+    /* BORDA ARREDONDADA NOS INPUTS */
+    border-radius: 8px;
     font-size: 16px;
+    transition: border-color 0.2s;
 }
 
+.painel-cartelas input[type="number"]:focus {
+    border-color: var(--azul-escuro);
+    outline: none;
+}
+
+/* Botões Modernos e Arredondados */
 .painel-cartelas button {
-    padding: 8px 15px;
+    padding: 10px 20px;
     cursor: pointer;
     border: none;
-    border-radius: 5px;
-    font-weight: bold;
-    font-size: 14px;
-    transition: background 0.2s;
+    /* BORDA ARREDONDADA NOS BOTÕES */
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 15px;
+    transition: all 0.2s ease;
 }
 
-.controles-regras {
-    margin-top: 15px;
-    display: flex;
-    gap: 20px;
-    padding: 10px;
-    background: #fff;
-    border-radius: 5px;
-    border: 1px inset #eee;
+#btn-gerar-pdf {
+    background-color: var(--amarelo);
+    color: var(--azul-escuro);
+}
+#btn-gerar-pdf:hover {
+    background-color: #d19300;
+    transform: translateY(-1px);
 }
 
-.controles-regras label {
-    font-size: 14px;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    gap: 5px;
+#btn-iniciar-jogo {
+    background-color: var(--azul-escuro);
+    color: white;
+}
+#btn-iniciar-jogo:hover {
+    background-color: #00457a;
+    transform: translateY(-1px);
 }
 
-#btn-gerar-pdf { background-color: var(--amarelo); color: var(--azul-escuro); }
-#btn-gerar-pdf:hover { background-color: #d19300; }
-
-#btn-iniciar-jogo { background-color: var(--azul-escuro); color: white; }
-#btn-iniciar-jogo:hover { background-color: #00457a; }
-
+/* Status do Bingo moderno */
 .status-bingo {
-    font-weight: bold;
-    margin-top: 10px;
-    padding: 8px;
-    background-color: #eee;
-    border-radius: 5px;
+    font-weight: 600;
+    margin-top: 15px;
+    padding: 12px;
+    background-color: #f1f1f1;
+    /* BORDA ARREDONDADA NO STATUS */
+    border-radius: 8px;
     text-align: center;
+    border: 1px solid #eee;
 }
 
 .status-bingo.alerta-bingo {
     background-color: var(--vermelho-alerta);
     color: white;
-    font-size: 18px;
+    font-size: 20px;
+    border-color: #c0392b;
     animation: piscar 1s infinite;
 }
 
-@keyframes piscar { 0%, 100% { opacity: 1; } 50% { opacity: 0.7; } }
+@keyframes piscar { 0%, 100% { opacity: 1; } 50% { opacity: 0.8; } }
 
 /* --- ÁREA DE SORTEIO --- */
 .area-sorteio.escondida { display: none; }
 
-.botoes-sorteio { text-align: center; margin-bottom: 20px; }
+.botoes-sorteio { text-align: center; margin-bottom: 25px; }
 
+/* Botões do Sorteio Modernos */
 .botoes-sorteio button {
-    padding: 12px 25px;
-    font-size: 16px;
-    font-weight: bold;
+    padding: 14px 30px;
+    font-size: 17px;
+    font-weight: 600;
     cursor: pointer;
     border: none;
-    border-radius: 8px;
-    margin: 0 10px;
+    /* BORDA ARREDONDADA NOS BOTÕES DE SORTEIO */
+    border-radius: 10px;
+    margin: 0 12px;
+    transition: all 0.2s ease;
 }
 
-#btn-sortear { background-color: var(--azul-escuro); color: white; }
-#btn-reiniciar { background-color: #ddd; color: #555; }
+#btn-sortear {
+    background-color: var(--azul-escuro);
+    color: white;
+    box-shadow: 0 4px 6px rgba(0,45,83,0.1);
+}
+#btn-sortear:hover {
+    background-color: #00457a;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 10px rgba(0,45,83,0.15);
+}
+
+#btn-reiniciar {
+    background-color: #e2e6ea;
+    color: var(--texto-suave);
+}
+#btn-reiniciar:hover {
+    background-color: #ced4da;
+    color: #333;
+}
 
 /* --- TABULEIRO COMPACTO E CENTRALIZADO --- */
 .bingo-board {
     display: grid;
     grid-template-columns: repeat(5, 1fr);
-    gap: 10px;
+    gap: 15px;
     width: 100%;
 }
 
@@ -170,31 +231,36 @@ body {
     align-items: center; /* Centraliza tudo na coluna */
 }
 
+/* Cabeçalhos das Letras (Quadrados Arredondados) */
 .header-cell {
-    font-size: 26px;
-    font-weight: bold;
+    font-size: 28px;
+    font-weight: 800;
     color: white;
-    padding: 8px 0;
-    border-radius: 8px;
-    margin-bottom: 15px;
+    padding: 10px 0;
+    /* BORDA ARREDONDADA NAS LETRAS */
+    border-radius: 10px;
+    margin-bottom: 20px;
     text-align: center;
     width: 90px; /* Largura fixa para todas */
+    box-shadow: 0 3px 6px rgba(0,0,0,0.08);
 }
 
-/* Cores das Letras (Azul: B,N,O | Amarelo: I,G) */
+/* Cores das Letras (B,N,O Azul | I,G Amarelo) */
 .col-b .header-cell, .col-n .header-cell, .col-o .header-cell { background-color: var(--azul-escuro); }
 .col-i .header-cell, .col-g .header-cell { background-color: var(--amarelo); color: var(--azul-escuro); }
 
 .number-cells {
     display: grid;
     grid-template-columns: repeat(2, 35px); /* Duas colunas fixas de 35px */
-    gap: 5px;
+    gap: 8px;
     justify-content: center; /* Centraliza o grid de bolinhas */
 }
 
+/* Bolinhas do Tabuleiro Modernas */
 .cell {
     width: 35px;
     height: 35px;
+    /* BOLINHA PERFEITAMENTE REDONDA */
     border-radius: 50%;
     background-color: #fcfcfc;
     color: #999;
@@ -204,23 +270,24 @@ body {
     justify-content: center;
     align-items: center;
     transition: all 0.3s;
+    box-sizing: border-box;
 }
 
 /* --- CORES DAS BOLINHAS SORTEADAS --- */
 .cell.drawn {
     font-weight: bold;
-    transform: scale(1.1);
-    box-shadow: 0 3px 6px rgba(0,0,0,0.15);
+    transform: scale(1.15);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
 }
 
-/* Onde a letra é azul, a bolinha é amarela */
+/* Onde a letra é azul, a bolinha sorteada fica amarela */
 .col-b .cell.drawn, .col-n .cell.drawn, .col-o .cell.drawn {
     background-color: var(--amarelo);
     color: var(--azul-escuro);
     border-color: #d19300;
 }
 
-/* Onde a letra é amarela, a bolinha é azul */
+/* Onde a letra é amarela, a bolinha sorteada fica azul */
 .col-i .cell.drawn, .col-g .cell.drawn {
     background-color: var(--azul-escuro);
     color: var(--amarelo);
