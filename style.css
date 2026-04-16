@@ -75,16 +75,25 @@ button {
 .col-b .header-cell, .col-n .header-cell, .col-o .header-cell { background: var(--azul); }
 .col-i .header-cell, .col-g .header-cell { background: var(--amarelo); color: var(--azul); }
 
-/* Grid interno de 2 colunas para os números */
+/* --- Ajuste para Centralizar as Bolinhas --- */
+
+.bingo-column {
+    display: flex;
+    flex-direction: column;
+    align-items: center; /* Centraliza o cabeçalho e o grupo de bolinhas */
+}
+
 .number-cells {
     display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 4px;
+    grid-template-columns: repeat(2, 32px); /* Define duas colunas de tamanho fixo */
+    gap: 6px;
+    justify-content: center; /* Centraliza o grid de bolinhas horizontalmente */
+    width: 100%;
 }
 
 .cell {
-    width: 30px;
-    height: 30px;
+    width: 32px;
+    height: 32px;
     border-radius: 50%;
     background: #f9f9f9;
     border: 1px solid #eee;
@@ -93,6 +102,8 @@ button {
     justify-content: center;
     font-size: 13px;
     color: #999;
+    /* Remove qualquer margem que possa estar empurrando para o lado */
+    margin: 0 auto; 
 }
 
 /* Estilo de sorteado - Invertendo cores para contraste */
