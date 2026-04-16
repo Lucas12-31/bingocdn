@@ -1,3 +1,5 @@
+/* --- style.css --- */
+
 /* Estilos Gerais */
 body {
     font-family: Arial, sans-serif;
@@ -25,6 +27,7 @@ header {
     border-bottom: 2px solid #eee;
 }
 
+/* O número grande que aparece ao sortear */
 .numero-grande {
     font-size: 70px;
     font-weight: bold;
@@ -36,6 +39,7 @@ header {
     margin: 15px 0;
 }
 
+/* Botões */
 .botoes button {
     padding: 10px 20px;
     font-size: 16px;
@@ -52,10 +56,10 @@ header {
 #btn-reiniciar { background-color: #e74c3c; color: white; }
 #btn-reiniciar:hover { background-color: #c0392b; }
 
-/* Estilos da Tabela Bingo */
+/* Estilos da Tabela Bingo (Tabuleiro) */
 .bingo-board {
     display: grid;
-    grid-template-columns: repeat(5, 1fr);
+    grid-template-columns: repeat(5, 1fr); /* 5 colunas */
     gap: 15px;
     width: 100%;
 }
@@ -75,33 +79,50 @@ header {
     margin-bottom: 5px;
 }
 
-/* Cores dos Cabeçalhos */
+/* Cores dos Cabeçalhos (iguais à imagem) */
 .col-b .header-cell { background-color: #0076c0; }
 .col-i .header-cell { background-color: #16a085; }
 .col-n .header-cell { background-color: #c99300; }
 .col-g .header-cell { background-color: #2d66cf; }
 .col-o .header-cell { background-color: #db0056; }
 
-/* Células de Número */
+/* Contêiner das bolinhas dentro de cada coluna */
 .number-cells {
     display: flex;
     flex-direction: column;
-    gap: 4px;
+    gap: 4px; /* Espaço entre as bolinhas */
+    align-items: center; /* Centraliza as bolinhas na coluna */
 }
 
+/* --- ESTILO DAS BOLINHAS (O PULO DO GATO) --- */
 .cell {
+    /* Forma circular */
+    width: 35px;         /* Largura fixa */
+    height: 35px;        /* Altura fixa (igual à largura) */
+    border-radius: 50%; /* Faz ser um círculo */
+    
+    /* Cores iniciais (bolinha cinza) */
     background-color: #f7f7f7;
     color: #777;
+    border: 1px solid #ddd; /* Borda sutil */
+
+    /* Fonte e alinhamento do número dentro da bolinha */
     font-size: 16px;
-    padding: 8px;
-    border-radius: 4px;
+    display: flex;
+    justify-content: center;
+    align-items: center; /* Centraliza o número verticalmente e horizontalmente */
+    
+    /* Animação suave */
     transition: all 0.2s ease-out;
+    box-sizing: border-box; /* Garante que a borda não aumente o tamanho */
 }
 
-/* Estado: Número Sorteado */
+/* Estado: Número Sorteado (Bolinha Acordada) */
 .cell.drawn {
     background-color: #2ecc71; /* Cor de destaque (Verde) */
     color: white;
     font-weight: bold;
-    transform: scale(1.05);
+    border-color: #27ae60;
+    transform: scale(1.1); /* Dá um pequeno pulo */
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2); /* Sombra suave */
 }
