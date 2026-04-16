@@ -3,15 +3,16 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sorteador de Bingo - Casa de Negócios</title>
+    <title>Sorteador e Gestor de Bingo - Casa de Negócios</title>
     <link rel="stylesheet" href="style.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 </head>
 <body>
     <div class="container-principal">
         
         <header class="barra-topo">
             <div class="logo-container">
-                <img src="logo.png" alt="Logo Casa de Negócios" class="logo-site">
+                <img src="imagens/logo.png" alt="Logo Casa de Negócios" class="logo-site">
             </div>
             <div class="display-sorteio-header">
                 <span class="label-ultimo">Último número sorteado:</span>
@@ -19,36 +20,50 @@
             </div>
         </header>
         
-        <section class="area-controles">
-            <h1>Sorteador de Bingo (1-75)</h1>
-            <div class="botoes">
-                <button id="btn-sortear" onclick="sortearNumero()">Sortear Próximo</button>
-                <button id="btn-reiniciar" onclick="reiniciar()">Reiniciar</button>
+        <section class="painel-cartelas">
+            <h2>Gestão de Cartelas (PDF e Validação)</h2>
+            <div class="controles-cartela">
+                <label>Qtd. Cartelas para Imprimir:</label>
+                <input type="number" id="qtd-imprimir" value="20" min="1" max="500">
+                <button id="btn-gerar-pdf" onclick="gerarPDFCartelas()">Gerar PDF para Impressão</button>
             </div>
+            <div class="controles-jogo">
+                <label>Jogar com cartelas de #1 até:</label>
+                <input type="number" id="qtd-jogando" value="20" min="1" max="500">
+                <button id="btn-iniciar-jogo" onclick="iniciarJogoCompleto()">Iniciar Sorteio</button>
+            </div>
+            <div id="status-bingo" class="status-bingo">Aguardando início do jogo...</div>
         </section>
-        
-        <main class="bingo-board">
-            <div class="bingo-column col-b">
-                <div class="header-cell">B</div>
-                <div class="number-cells" id="cells-b"></div>
+
+        <section id="area-sorteio" class="area-sorteio escondida">
+            <div class="botoes-sorteio">
+                <button id="btn-sortear" onclick="sortearNumero()">Sortear Próximo Número</button>
+                <button id="btn-reiniciar" onclick="reiniciarJogo()">Reiniciar Sorteio</button>
             </div>
-            <div class="bingo-column col-i">
-                <div class="header-cell">I</div>
-                <div class="number-cells" id="cells-i"></div>
-            </div>
-            <div class="bingo-column col-n">
-                <div class="header-cell">N</div>
-                <div class="number-cells" id="cells-n"></div>
-            </div>
-            <div class="bingo-column col-g">
-                <div class="header-cell">G</div>
-                <div class="number-cells" id="cells-g"></div>
-            </div>
-            <div class="bingo-column col-o">
-                <div class="header-cell">O</div>
-                <div class="number-cells" id="cells-o"></div>
-            </div>
-        </main>
+
+            <main class="bingo-board">
+                <div class="bingo-column col-b">
+                    <div class="header-cell">B</div>
+                    <div class="number-cells" id="cells-b"></div>
+                </div>
+                <div class="bingo-column col-i">
+                    <div class="header-cell">I</div>
+                    <div class="number-cells" id="cells-i"></div>
+                </div>
+                <div class="bingo-column col-n">
+                    <div class="header-cell">N</div>
+                    <div class="number-cells" id="cells-n"></div>
+                </div>
+                <div class="bingo-column col-g">
+                    <div class="header-cell">G</div>
+                    <div class="number-cells" id="cells-g"></div>
+                </div>
+                <div class="bingo-column col-o">
+                    <div class="header-cell">O</div>
+                    <div class="number-cells" id="cells-o"></div>
+                </div>
+            </main>
+        </section>
     </div>
     <script src="script.js"></script>
 </body>
