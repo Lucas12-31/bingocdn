@@ -116,7 +116,7 @@ function carregarLogoBase64() {
             resolve(canvas.toDataURL('image/png'));
         };
         img.onerror = () => resolve(null);
-        img.src = 'imagens/logo.png';
+        img.src = 'logo.png';
     });
 }
 
@@ -151,18 +151,46 @@ function iniciarJogoCompleto() {
 }
 
 function sortearNumero() {
-    if (!jogoAtivo || numerosDisponiveis.length === 0) return;
+    // Se o jogo não foi iniciado, avisa o usuário
+    if (!jogoAtivo && numerosSorteados.length === 0) {
+        alert("Clique em 'Iniciar Sorteio' primeiro!");
+        return;
+    }
 
+    if (numerosDisponiveis.length === 0) {
+        alert("Todos os números já foram sorteados!");
+        return;
+    }
+
+    // Remove o alerta de Bingo anterior para poder continuar sorteando
+    const status = document.getElementById('status-bingo');
+    status.classList.remove('alerta-bingo');
+
+    // Sorteio
     const idx = Math.floor(Math.random() * numerosDisponiveis.length);
     const num = numerosDisponiveis.splice(idx, 1)[0];
     numerosSorteados.push(num);
 
+    // Atualização Visual
     document.getElementById('numero-sorteado-display').textContent = num;
     const el = document.getElementById(`num-${num}`);
     if (el) el.classList.add('drawn');
 
+    // Validação
     const vencedor = verificarBingo();
-    const status = document.getElementById('status-bingo');
+    
+    if (vencedor) {
+        // NÃO travamos mais o jogoAtivo = false aqui, permitindo continuar
+        status.textContent = `BINGO! Cartela nº ${vencedor.id} ${vencedor.motivo}! 🎉`;
+        status.classList.add('alerta-bingo');
+        
+        // O alert é opcional. Se ele estiver atrapalhando a fluidez, 
+        // você pode comentar a linha abaixo com //
+        alert(`🎉 BINGO!\nCartela nº ${vencedor.id} ${vencedor.motivo}!`);
+    } else {
+        status.textContent = `Pedras: ${numerosSorteados.length}. Monitorando ${qtdCartelasJogando} cartelas...`;
+    }
+}
     
     if (vencedor) {
         jogoAtivo = false;
