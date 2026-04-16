@@ -1,41 +1,72 @@
 let numerosDisponiveis = [];
 let numerosSorteados = [];
+let jogoAtivo = false;
 
-// Inicializa o tabuleiro
-function inicializarTabuleiro() {
-    const painel = document.getElementById('painel-numeros');
-    painel.innerHTML = '';
-    numerosDisponiveis = Array.from({length: 75}, (_, i) => i + 1);
-    numerosSorteados = [];
+// Configuração do Bingo (B I N G O)
+const configColunas = {
+    'b': { container: 'cells-b', range: [1, 15] },
+    'i': { container: 'cells-i', range: [16, 30] },
+    'n': { container: 'cells-n', range: [31, 45] },
+    'g': { container: 'cells-g', range: [46, 60] },
+    'o': { container: 'cells-o', range: [61, 75] }
+};
 
-    for (let i = 1; i <= 75; i++) {
-        let div = document.createElement('div');
-        div.id = `num-${i}`;
-        div.className = 'bola';
-        div.innerText = i;
-        painel.appendChild(div);
+// Função para popular o tabuleiro com as células
+function popularTabuleiro() {
+    for (const letra in configColunas) {
+        const coluna = configColunas[letra];
+        const container = document.getElementById(coluna.container);
+        container.innerHTML = ''; // Limpa antes de popular
+
+        for (let i = coluna.range[0]; i <= coluna.range[1]; i++) {
+            const cellDiv = document.createElement('div');
+            cellDiv.className = 'cell';
+            cellDiv.id = `num-${i}`;
+            cellDiv.textContent = i;
+            container.appendChild(cellDiv);
+        }
     }
+}
+
+// Inicializa o jogo
+function inicializarJogo() {
+    numerosDisponiveis = Array.from({ length: 75 }, (_, i) => i + 1);
+    numerosSorteados = [];
+    document.getElementById('numero-sorteado-display').textContent = '--';
+    popularTabuleiro();
+    jogoAtivo = true;
 }
 
 function sortearNumero() {
-    if (numerosDisponiveis.length === 0) {
+    if (!jogoAtivo || numerosDisponiveis.length === 0) {
         alert("Todos os números já foram sorteados!");
+        jogoAtivo = false;
         return;
     }
 
-    const index = Math.floor(Math.random() * numerosDisponiveis.length);
-    const numero = numerosDisponiveis.splice(index, 1)[0];
+    // Sorteia um índice aleatório
+    const indexSorteado = Math.floor(Math.random() * numerosDisponiveis.length);
     
-    // Atualiza a tela
-    document.getElementById('numero-sorteado').innerText = numero;
-    document.getElementById(`num-${numero}`).classList.add('sorteada');
-}
+    // Remove o número da lista de disponíveis e guarda
+    const numeroSorteado = numerosDisponiveis.splice(indexSorteado, 1)[0];
+    numerosSorteados.push(numeroSorteado);
 
-function reiniciar() {
-    if(confirm("Deseja reiniciar o bingo?")) {
-        document.getElementById('numero-sorteado').innerText = '--';
-        inicializarTabuleiro();
+    // --- Atualização Visual ---
+    // 1. Número grande no cabeçalho
+    document.getElementById('numero-sorteado-display').textContent = numeroSorteado;
+
+    // 2. Acende a célula no tabuleiro correspondente
+    const cellElement = document.getElementById(`num-${numeroSorteado}`);
+    if (cellElement) {
+        cellElement.classList.add('drawn');
     }
 }
 
-inicializarTabuleiro();
+function reiniciar() {
+    if (confirm("Deseja reiniciar o sorteio do Bingo?")) {
+        inicializarJogo();
+    }
+}
+
+// Inicia o jogo quando a página carrega
+inicializarJogo();
