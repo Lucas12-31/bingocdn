@@ -32,6 +32,11 @@
                 <input type="number" id="qtd-jogando" value="20" min="1" max="500">
                 <button id="btn-iniciar-jogo" onclick="iniciarJogoCompleto()">Iniciar Sorteio</button>
             </div>
+            <div class="controles-regras">
+                <label><strong>Regras de Vitória:</strong></label>
+                <label><input type="checkbox" id="check-linha-coluna" checked> Linha ou Coluna</label>
+                <label><input type="checkbox" id="check-cheia" checked> Cartela Cheia</label>
+            </div>
             <div id="status-bingo" class="status-bingo">Aguardando início do jogo...</div>
         </section>
 
