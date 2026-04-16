@@ -3,19 +3,29 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sorteador de Bingo 75 Números</title>
+    <title>Sorteador de Bingo - Casa de Negócios</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
     <div class="container-principal">
-        <header>
-            <h1>Sorteador de Bingo</h1>
-            <div id="numero-sorteado-display" class="numero-grande">--</div>
+        
+        <header class="barra-topo">
+            <div class="logo-container">
+                <img src="logo.png" alt="Logo Casa de Negócios" class="logo-site">
+            </div>
+            <div class="display-sorteio-header">
+                <span class="label-ultimo">Último número sorteado:</span>
+                <div id="numero-sorteado-display" class="numero-grande-header">--</div>
+            </div>
+        </header>
+        
+        <section class="area-controles">
+            <h1>Sorteador de Bingo (1-75)</h1>
             <div class="botoes">
                 <button id="btn-sortear" onclick="sortearNumero()">Sortear Próximo</button>
                 <button id="btn-reiniciar" onclick="reiniciar()">Reiniciar</button>
             </div>
-        </header>
+        </section>
         
         <main class="bingo-board">
             <div class="bingo-column col-b">
