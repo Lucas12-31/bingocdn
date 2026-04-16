@@ -190,15 +190,6 @@ function sortearNumero() {
     }
 }
     
-    if (vencedor) {
-        jogoAtivo = false;
-        status.textContent = `BINGO! Cartela nº ${vencedor.id} ${vencedor.motivo}! 🎉`;
-        status.classList.add('alerta-bingo');
-        alert(`🎉 BINGO! Cartela nº ${vencedor.id} ${vencedor.motivo}!`);
-    } else {
-        status.textContent = `Pedras: ${numerosSorteados.length}. Monitorando ${qtdCartelasJogando} cartelas...`;
-    }
-}
 
 function verificarBingo() {
     const querLinhaColuna = document.getElementById('check-linha-coluna').checked;
