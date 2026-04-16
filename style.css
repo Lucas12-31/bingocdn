@@ -96,6 +96,24 @@ body {
     transition: background 0.2s;
 }
 
+.controles-regras {
+    margin-top: 15px;
+    display: flex;
+    gap: 20px;
+    padding: 10px;
+    background: #fff;
+    border-radius: 5px;
+    border: 1px inset #eee;
+}
+
+.controles-regras label {
+    font-size: 14px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
 #btn-gerar-pdf { background-color: var(--amarelo); color: var(--azul-escuro); }
 #btn-gerar-pdf:hover { background-color: #d19300; }
 
