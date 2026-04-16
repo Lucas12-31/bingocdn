@@ -2,18 +2,43 @@
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
-    <title>Bingo 1-75</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sorteador de Bingo 75 Números</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <div class="container">
-        <h1>Bingo Online</h1>
-        <div id="numero-sorteado">--</div>
-        <button onclick="sortearNumero()">Sortear Número</button>
-        <button onclick="reiniciar()">Reiniciar</button>
-        
-        <div id="painel-numeros" class="grid-bingo">
+    <div class="container-principal">
+        <header>
+            <h1>Sorteador de Bingo</h1>
+            <div id="numero-sorteado-display" class="numero-grande">--</div>
+            <div class="botoes">
+                <button id="btn-sortear" onclick="sortearNumero()">Sortear Próximo</button>
+                <button id="btn-reiniciar" onclick="reiniciar()">Reiniciar</button>
             </div>
+        </header>
+        
+        <main class="bingo-board">
+            <div class="bingo-column col-b">
+                <div class="header-cell">B</div>
+                <div class="number-cells" id="cells-b"></div>
+            </div>
+            <div class="bingo-column col-i">
+                <div class="header-cell">I</div>
+                <div class="number-cells" id="cells-i"></div>
+            </div>
+            <div class="bingo-column col-n">
+                <div class="header-cell">N</div>
+                <div class="number-cells" id="cells-n"></div>
+            </div>
+            <div class="bingo-column col-g">
+                <div class="header-cell">G</div>
+                <div class="number-cells" id="cells-g"></div>
+            </div>
+            <div class="bingo-column col-o">
+                <div class="header-cell">O</div>
+                <div class="number-cells" id="cells-o"></div>
+            </div>
+        </main>
     </div>
     <script src="script.js"></script>
 </body>
