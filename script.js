@@ -70,20 +70,27 @@ function desenharCartelaNoPDF(doc, id, dados, indexPagina, logoBase64) {
     const y = margemY + (linPDF * (altura + 15));
 
     if (logoBase64) doc.addImage(logoBase64, 'PNG', x, y, 35, 0);
+    
     doc.setFontSize(9);
     doc.setTextColor(100);
     doc.text(`Nº ${String(id).padStart(3, '0')}`, x + largura - 5, y + 5, { align: 'right' });
 
     const gridY = y + 15, tam = 16;
     const letras = ['B', 'I', 'N', 'G', 'O'];
+    const raio = 3; // Ajuste aqui o nível do arredondamento
 
+    // Cabeçalho BINGO com bordas arredondadas
     letras.forEach((l, i) => {
-        const cor = (l==='I' || l==='G') ? COR_AMARELO : COR_AZUL;
+        const cor = (l === 'I' || l === 'G') ? COR_AMARELO : COR_AZUL;
         doc.setFillColor(...cor);
-        doc.rect(x + (i*tam), gridY, tam, tam, 'F');
-        doc.setTextColor((l==='I' || l==='G') ? 0 : 255);
+        
+        // Trocamos rect por roundedRect
+        // Os números 3, 3 no final são o raio do arredondamento (horizontal e vertical)
+        doc.roundedRect(x + (i * tam), gridY, tam, tam, raio, raio, 'F');
+        
+        doc.setTextColor((l === 'I' || l === 'G') ? 0 : 255);
         doc.setFontSize(20);
-        doc.text(l, x + (i*tam) + 8, gridY + 11, { align: 'center' });
+        doc.text(l, x + (i * tam) + 8, gridY + 11, { align: 'center' });
     });
 
     doc.setTextColor(50);
@@ -92,13 +99,21 @@ function desenharCartelaNoPDF(doc, id, dados, indexPagina, logoBase64) {
         for (let c = 0; c < 5; c++) {
             const cX = x + (c * tam), cY = gridY + tam + (r * tam);
             doc.setDrawColor(200);
-            doc.rect(cX, cY, tam, tam);
+            
+            // Se quiser as células de números arredondadas também:
+            doc.roundedRect(cX, cY, tam, tam, 2, 2, 'S'); 
+            // 'S' é apenas o stroke (contorno)
+            
             if (r === 2 && c === 2) {
-                if (imagemCentroBase64) doc.addImage(imagemCentroBase64, 'PNG', cX+2, cY+2, tam-4, tam-4);
-                else { doc.setFontSize(8); doc.text("FREE", cX+8, cY+9, { align: 'center' }); doc.setFontSize(16); }
+                if (imagemCentroBase64) doc.addImage(imagemCentroBase64, 'PNG', cX + 2, cY + 2, tam - 4, tam - 4);
+                else { 
+                    doc.setFontSize(8); 
+                    doc.text("FREE", cX + 8, cY + 9, { align: 'center' }); 
+                    doc.setFontSize(16); 
+                }
             } else {
                 const num = dados[letras[c].toLowerCase()][r];
-                doc.text(String(num), cX+8, cY+11, { align: 'center' });
+                doc.text(String(num), cX + 8, cY + 11, { align: 'center' });
             }
         }
     }
