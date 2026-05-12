@@ -1,16 +1,21 @@
-// --- script.js (Versão Atualizada com Trava de Ganhadores) ---
+// --- script.js (Versão Final Otimizada) ---
 
+// Cores Oficiais
 const COR_AZUL = [0, 45, 83];
 const COR_AMARELO = [243, 171, 0];
 
+// Variáveis de Controle Global
 let numerosDisponiveis = [];
 let numerosSorteados = [];
 let jogoAtivo = false;
 let qtdCartelasJogando = 0;
-let ganhadoresJaAlertados = new Set(); 
+let statusGanhadores = {}; // Rastreia prêmios por ID { id: ["LINHA", "CHEIA"] }
 
+// Cole seu Base64 aqui se desejar imagem no centro de cada grade
 const imagemCentroBase64 = "iVBORw0KGgoAAAANSUhEUgAAAMgAAADICAYAAACtWK6eAAAAtGVYSWZJSSoACAAAAAYAEgEDAAEAAAABAAAAGgEFAAEAAABWAAAAGwEFAAEAAABeAAAAKAEDAAEAAAACAAAAEwIDAAEAAAABAAAAaYcEAAEAAABmAAAAAAAAAGAAAAABAAAAYAAAAAEAAAAGAACQBwAEAAAAMDIxMAGRBwAEAAAAAQIDAACgBwAEAAAAMDEwMAGgAwABAAAA";
-    
+
+// --- 1. UTILITÁRIOS ---
+
 function seededRandom(seed) {
     const x = Math.sin(seed++) * 10000;
     return x - Math.floor(x);
@@ -18,8 +23,7 @@ function seededRandom(seed) {
 
 function gerarNumerosCartelaFixa(idCartela) {
     const cartela = { b: [], i: [], n: [], g: [], o: [] };
-    let seed = idCartela * 123.45; // Semente única por ID
-
+    let seed = idCartela * 123.45;
     const intervalos = {
         b: [1, 15], i: [16, 30], n: [31, 45], g: [46, 60], o: [61, 75]
     };
@@ -38,7 +42,7 @@ function gerarNumerosCartelaFixa(idCartela) {
     return cartela;
 }
 
-// --- 2. GERAÇÃO DE PDF (4 POR PÁGINA A4) ---
+// --- 2. GERAÇÃO DE PDF (OTIMIZADA PARA GRANDES QUANTIDADES) ---
 
 async function gerarPDFCartelas() {
     const qtd = parseInt(document.getElementById('qtd-imprimir').value);
@@ -49,37 +53,31 @@ async function gerarPDFCartelas() {
     const logoBase64 = await carregarLogoBase64();
     const status = document.getElementById('status-bingo');
 
-    // Função interna para processar em blocos
     async function processarBloco(inicio) {
-        const tamanhoBloco = 20; // Processa 20 cartelas por vez para não travar
+        const tamanhoBloco = 20; 
         const fim = Math.min(inicio + tamanhoBloco, qtd);
 
         for (let i = inicio; i <= fim; i++) {
-            // Se não for a primeira cartela e for múltiplo de 4, nova página
-            if (i > 1 && (i - 1) % 4 === 0) {
-                doc.addPage();
-            }
+            if (i > 1 && (i - 1) % 4 === 0) doc.addPage();
             const dados = gerarNumerosCartelaFixa(i);
             desenharCartelaNoPDF(doc, i, dados, (i - 1) % 4, logoBase64);
         }
 
-        status.textContent = `Gerando: ${fim} de ${qtd} cartelas...`;
+        status.textContent = `Processando: ${fim} de ${qtd} cartelas...`;
 
         if (fim < qtd) {
-            // Pequena pausa para o navegador não congelar
             setTimeout(() => processarBloco(fim + 1), 10);
         } else {
-            status.textContent = "Finalizando PDF... Aguarde.";
-            // Pequeno delay para garantir que o último status apareça
+            status.textContent = "Salvando arquivo...";
             setTimeout(() => {
-                doc.save(`bingo-casa-de-negocios-${qtd}-cartelas.pdf`);
+                doc.save(`bingo-cartelas-${qtd}.pdf`);
                 status.textContent = "PDF Gerado com sucesso!";
             }, 500);
         }
     }
 
     status.textContent = "Iniciando geração...";
-    processarBloco(1); // Começa o processamento
+    processarBloco(1);
 }
 
 function desenharCartelaNoPDF(doc, id, dados, indexPagina, logoBase64) {
@@ -94,41 +92,32 @@ function desenharCartelaNoPDF(doc, id, dados, indexPagina, logoBase64) {
     doc.setTextColor(100);
     doc.text(`Nº ${String(id).padStart(3, '0')}`, x + largura - 5, y + 5, { align: 'right' });
 
-    const gridY = y + 15, tam = 16;
+    const gridY = y + 15, tam = 16, raio = 3;
     const letras = ['B', 'I', 'N', 'G', 'O'];
-    const raio = 3; // Ajuste aqui o nível do arredondamento
 
-    // Cabeçalho BINGO com bordas arredondadas
+    // Cabeçalho Arredondado
     letras.forEach((l, i) => {
         const cor = (l === 'I' || l === 'G') ? COR_AMARELO : COR_AZUL;
         doc.setFillColor(...cor);
-        
-        // Trocamos rect por roundedRect
-        // Os números 3, 3 no final são o raio do arredondamento (horizontal e vertical)
         doc.roundedRect(x + (i * tam), gridY, tam, tam, raio, raio, 'F');
-        
         doc.setTextColor((l === 'I' || l === 'G') ? 0 : 255);
         doc.setFontSize(20);
         doc.text(l, x + (i * tam) + 8, gridY + 11, { align: 'center' });
     });
 
+    // Grade de Números Arredondada
     doc.setTextColor(50);
     doc.setFontSize(16);
     for (let r = 0; r < 5; r++) {
         for (let c = 0; c < 5; c++) {
             const cX = x + (c * tam), cY = gridY + tam + (r * tam);
             doc.setDrawColor(200);
-            
-            // Se quiser as células de números arredondadas também:
-            doc.roundedRect(cX, cY, tam, tam, 2, 2, 'S'); 
-            // 'S' é apenas o stroke (contorno)
+            doc.roundedRect(cX, cY, tam, tam, 1.5, 1.5, 'S');
             
             if (r === 2 && c === 2) {
                 if (imagemCentroBase64) doc.addImage(imagemCentroBase64, 'PNG', cX + 2, cY + 2, tam - 4, tam - 4);
                 else { 
-                    doc.setFontSize(8); 
-                    doc.text("FREE", cX + 8, cY + 9, { align: 'center' }); 
-                    doc.setFontSize(16); 
+                    doc.setFontSize(7); doc.text("FREE", cX + 8, cY + 9, { align: 'center' }); doc.setFontSize(16); 
                 }
             } else {
                 const num = dados[letras[c].toLowerCase()][r];
@@ -148,11 +137,11 @@ function carregarLogoBase64() {
             resolve(canvas.toDataURL('image/png'));
         };
         img.onerror = () => resolve(null);
-        img.src = 'logo.png';
+        img.src = 'logo.png'; 
     });
 }
 
-// --- 3. LÓGICA DO SORTEIO E VALIDAÇÃO ---
+// --- 3. LÓGICA DO JOGO ---
 
 function iniciarJogoCompleto() {
     qtdCartelasJogando = parseInt(document.getElementById('qtd-jogando').value);
@@ -160,11 +149,11 @@ function iniciarJogoCompleto() {
 
     numerosDisponiveis = Array.from({ length: 75 }, (_, i) => i + 1);
     numerosSorteados = [];
-    statusGanhadores = {};
-    ganhadoresJaAlertados.clear(); 
-    
+    statusGanhadores = {}; // Reseta prêmios
+
     document.getElementById('numero-sorteado-display').textContent = '--';
     
+    // Limpa Tabuleiro Visual
     const letras = ['b','i','n','g','o'];
     letras.forEach(l => {
         const container = document.getElementById(`cells-${l}`);
@@ -180,23 +169,13 @@ function iniciarJogoCompleto() {
     jogoAtivo = true;
     document.getElementById('area-sorteio').classList.remove('escondida');
     const status = document.getElementById('status-bingo');
-    status.textContent = `Monitorando cartelas de #1 a #${qtdCartelasJogando}...`;
+    status.textContent = `Monitorando ${qtdCartelasJogando} cartelas...`;
     status.classList.remove('alerta-bingo');
 }
 
 function sortearNumero() {
-    if (!jogoAtivo && numerosSorteados.length === 0) {
-        alert("Clique em 'Iniciar Sorteio' primeiro!");
-        return;
-    }
-
-    if (numerosDisponiveis.length === 0) {
-        alert("Todos os números já foram sorteados!");
-        return;
-    }
-
-    const status = document.getElementById('status-bingo');
-    status.classList.remove('alerta-bingo');
+    if (!jogoAtivo && numerosSorteados.length === 0) return alert("Inicie o sorteio primeiro!");
+    if (numerosDisponiveis.length === 0) return alert("Fim do sorteio!");
 
     const idx = Math.floor(Math.random() * numerosDisponiveis.length);
     const num = numerosDisponiveis.splice(idx, 1)[0];
@@ -206,38 +185,38 @@ function sortearNumero() {
     const el = document.getElementById(`num-${num}`);
     if (el) el.classList.add('drawn');
 
-    // Validação de múltiplos vencedores
     const novosVencedores = verificarBingo();
-    
+    const status = document.getElementById('status-bingo');
+
     if (novosVencedores.length > 0) {
         novosVencedores.forEach(v => {
-            // Registra que ESTE ID já ganhou ESTE MOTIVO
             if (!statusGanhadores[v.id]) statusGanhadores[v.id] = [];
             statusGanhadores[v.id].push(v.motivo);
         });
 
-        const status = document.getElementById('status-bingo');
         const idsTexto = novosVencedores.map(v => `nº ${v.id} (${v.motivo})`).join(', ');
-        
         status.textContent = `BINGO! ${idsTexto}! 🎉`;
         status.classList.add('alerta-bingo');
         alert(`🎉 BINGO!\n${idsTexto}`);
+    } else {
+        status.textContent = `Pedras: ${numerosSorteados.length}. Monitorando ${qtdCartelasJogando} cartelas...`;
+        status.classList.remove('alerta-bingo');
+    }
 }
 
 function verificarBingo() {
     const querLinhaColuna = document.getElementById('check-linha-coluna').checked;
     const querCheia = document.getElementById('check-cheia').checked;
-    let vencedoresNestaRodada = [];
+    let vencedores = [];
 
     for (let id = 1; id <= qtdCartelasJogando; id++) {
-        // Se a cartela já ganhou "BINGO CHEIO", ela sai do jogo definitivamente
+        // Se já fechou a cartela, ignora
         if (statusGanhadores[id] && statusGanhadores[id].includes("FECHOU A CARTELA")) continue;
 
         const dados = gerarNumerosCartelaFixa(id);
         const letras = ['b', 'i', 'n', 'g', 'o'];
         let matriz = [];
 
-        // Monta matriz de acertos
         for (let r = 0; r < 5; r++) {
             matriz[r] = [];
             for (let c = 0; c < 5; c++) {
@@ -246,37 +225,25 @@ function verificarBingo() {
             }
         }
 
-        // 1. VERIFICAÇÃO DE LINHA/COLUNA
-        if (querLinhaColuna) {
-            // Só verifica linha/coluna se ela ainda NÃO ganhou isso
-            if (!statusGanhadores[id] || !statusGanhadores[id].includes("fez LINHA/COLUNA")) {
-                let ganhouLC = false;
-                // Linhas
-                for (let r = 0; r < 5; r++) {
-                    if (matriz[r].every(v => v)) { ganhouLC = true; break; }
-                }
-                // Colunas (se não ganhou em linha)
-                if (!ganhouLC) {
-                    for (let c = 0; c < 5; c++) {
-                        if ([0,1,2,3,4].every(r => matriz[r][c])) { ganhouLC = true; break; }
-                    }
-                }
-
-                if (ganhouLC) {
-                    vencedoresNestaRodada.push({ id, motivo: "fez LINHA/COLUNA" });
-                    // Importante: Não damos "continue" aqui, pois ela pode fechar a cartela na mesma pedra!
-                }
-            }
+        // Verifica Linha/Coluna
+        if (querLinhaColuna && (!statusGanhadores[id] || !statusGanhadores[id].includes("fez LINHA/COLUNA"))) {
+            let ganhouLC = false;
+            for (let r = 0; r < 5; r++) if (matriz[r].every(v => v)) ganhouLC = true;
+            for (let c = 0; c < 5; c++) if ([0,1,2,3,4].every(r => matriz[r][c])) ganhouLC = true;
+            
+            if (ganhouLC) vencedores.push({ id, motivo: "fez LINHA/COLUNA" });
         }
 
-        // 2. VERIFICAÇÃO DE CARTELA CHEIA
+        // Verifica Cheia
         if (querCheia) {
             let total = 0;
             matriz.forEach(l => l.forEach(v => { if(v) total++; }));
-            if (total === 25) {
-                vencedoresNestaRodada.push({ id, motivo: "FECHOU A CARTELA" });
-            }
+            if (total === 25) vencedores.push({ id, motivo: "FECHOU A CARTELA" });
         }
     }
-    return vencedoresNestaRodada;
+    return vencedores;
+}
+
+function reiniciarJogo() {
+    if (confirm("Reiniciar sorteio?")) iniciarJogoCompleto();
 }
