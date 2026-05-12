@@ -130,14 +130,28 @@ function desenharCartelaNoPDF(doc, id, dados, indexPagina, logoBase64) {
 function carregarLogoBase64() {
     return new Promise((resolve) => {
         const img = new Image();
+        // Se demorar mais de 2 segundos, resolve como null para não travar o PDF
+        const timeout = setTimeout(() => {
+            console.warn("Logo demorou demais para carregar. Gerando sem logo.");
+            resolve(null);
+        }, 2000);
+
         img.onload = function () {
+            clearTimeout(timeout);
             const canvas = document.createElement('canvas');
-            canvas.width = this.width; canvas.height = this.height;
+            canvas.width = this.width;
+            canvas.height = this.height;
             canvas.getContext('2d').drawImage(this, 0, 0);
             resolve(canvas.toDataURL('image/png'));
         };
-        img.onerror = () => resolve(null);
-        img.src = 'logo.png'; 
+
+        img.onerror = () => {
+            clearTimeout(timeout);
+            console.error("Erro ao carregar logo.png. Verifique se o arquivo existe.");
+            resolve(null);
+        };
+
+        img.src = 'logo.png'; // Verifique se este nome está EXATAMENTE igual ao seu arquivo
     });
 }
 
