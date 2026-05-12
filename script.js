@@ -47,17 +47,39 @@ async function gerarPDFCartelas() {
     const { jsPDF } = window.jspdf;
     const doc = new jsPDF('p', 'mm', 'a4');
     const logoBase64 = await carregarLogoBase64();
+    const status = document.getElementById('status-bingo');
 
-    document.getElementById('status-bingo').textContent = "Gerando PDF...";
+    // Função interna para processar em blocos
+    async function processarBloco(inicio) {
+        const tamanhoBloco = 20; // Processa 20 cartelas por vez para não travar
+        const fim = Math.min(inicio + tamanhoBloco, qtd);
 
-    for (let i = 1; i <= qtd; i++) {
-        if (i > 1 && (i - 1) % 4 === 0) doc.addPage();
-        const dados = gerarNumerosCartelaFixa(i);
-        desenharCartelaNoPDF(doc, i, dados, (i - 1) % 4, logoBase64);
+        for (let i = inicio; i <= fim; i++) {
+            // Se não for a primeira cartela e for múltiplo de 4, nova página
+            if (i > 1 && (i - 1) % 4 === 0) {
+                doc.addPage();
+            }
+            const dados = gerarNumerosCartelaFixa(i);
+            desenharCartelaNoPDF(doc, i, dados, (i - 1) % 4, logoBase64);
+        }
+
+        status.textContent = `Gerando: ${fim} de ${qtd} cartelas...`;
+
+        if (fim < qtd) {
+            // Pequena pausa para o navegador não congelar
+            setTimeout(() => processarBloco(fim + 1), 10);
+        } else {
+            status.textContent = "Finalizando PDF... Aguarde.";
+            // Pequeno delay para garantir que o último status apareça
+            setTimeout(() => {
+                doc.save(`bingo-casa-de-negocios-${qtd}-cartelas.pdf`);
+                status.textContent = "PDF Gerado com sucesso!";
+            }, 500);
+        }
     }
 
-    document.getElementById('status-bingo').textContent = "PDF Gerado com sucesso!";
-    doc.save(`cartelas-bingo-casa-de-negocios.pdf`);
+    status.textContent = "Iniciando geração...";
+    processarBloco(1); // Começa o processamento
 }
 
 function desenharCartelaNoPDF(doc, id, dados, indexPagina, logoBase64) {
