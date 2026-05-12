@@ -1,18 +1,15 @@
-// --- script.js (Versão Final Otimizada) ---
+// --- script.js (Versão Definitiva com Segurança de Carregamento) ---
 
-// Cores Oficiais
 const COR_AZUL = [0, 45, 83];
 const COR_AMARELO = [243, 171, 0];
 
-// Variáveis de Controle Global
 let numerosDisponiveis = [];
 let numerosSorteados = [];
 let jogoAtivo = false;
 let qtdCartelasJogando = 0;
-let statusGanhadores = {}; // Rastreia prêmios por ID { id: ["LINHA", "CHEIA"] }
+let statusGanhadores = {}; 
 
-// Cole seu Base64 aqui se desejar imagem no centro de cada grade
-const imagemCentroBase64 = "iVBORw0KGgoAAAANSUhEUgAAAMgAAADICAYAAACtWK6eAAAAtGVYSWZJSSoACAAAAAYAEgEDAAEAAAABAAAAGgEFAAEAAABWAAAAGwEFAAEAAABeAAAAKAEDAAEAAAACAAAAEwIDAAEAAAABAAAAaYcEAAEAAABmAAAAAAAAAGAAAAABAAAAYAAAAAEAAAAGAACQBwAEAAAAMDIxMAGRBwAEAAAAAQIDAACgBwAEAAAAMDEwMAGgAwABAAAA";
+const imagemCentroBase64 = "iVBORw0KGgoAAAANSUhEUgAAAMgAAADICAYAAACtWK6eAAAAtGVYSWZJSSoACAAAAAYAEgEDAAEAAAABAAAAGgEFAAEAAABWAAAAGwEFAAEAAABeAAAAKAEDAAEAAAACAAAAEwIDAAEAAAABAAAAaYcEAAEAAABmAAAAAAAAAGAAAAABAAAAYAAAAAEAAAAGAACQBwAEAAAAMDIxMAGRBwAEAAAAAQIDAACgBwAEAAAAMDEwMAGgAwABAAAA"; // Pode colar seu base64 aqui se quiser
 
 // --- 1. UTILITÁRIOS ---
 
@@ -42,41 +39,80 @@ function gerarNumerosCartelaFixa(idCartela) {
     return cartela;
 }
 
-// --- 2. GERAÇÃO DE PDF (OTIMIZADA PARA GRANDES QUANTIDADES) ---
+// --- 2. GERAÇÃO DE PDF (BLINDADA CONTRA TRAVAMENTOS) ---
+
+function carregarLogoBase64() {
+    return new Promise((resolve) => {
+        const img = new Image();
+        // Segurança: Se a logo não carregar em 1.5 segundos, ignora e gera o PDF sem ela
+        const timeout = setTimeout(() => {
+            console.warn("Logo não encontrada ou demorou demais. Gerando sem logo.");
+            resolve(null);
+        }, 1500);
+
+        img.onload = function () {
+            clearTimeout(timeout);
+            try {
+                const canvas = document.createElement('canvas');
+                canvas.width = this.width;
+                canvas.height = this.height;
+                canvas.getContext('2d').drawImage(this, 0, 0);
+                resolve(canvas.toDataURL('image/png'));
+            } catch (e) {
+                resolve(null);
+            }
+        };
+
+        img.onerror = () => {
+            clearTimeout(timeout);
+            resolve(null);
+        };
+
+        img.src = 'logo.png'; 
+    });
+}
 
 async function gerarPDFCartelas() {
-    const qtd = parseInt(document.getElementById('qtd-imprimir').value);
+    const qtdInput = document.getElementById('qtd-imprimir');
+    const qtd = parseInt(qtdInput.value);
+    
     if (!qtd || qtd <= 0) return alert("Digite a quantidade de cartelas.");
 
     const { jsPDF } = window.jspdf;
     const doc = new jsPDF('p', 'mm', 'a4');
-    const logoBase64 = await carregarLogoBase64();
     const status = document.getElementById('status-bingo');
+    
+    status.textContent = "Carregando recursos...";
+    const logoBase64 = await carregarLogoBase64();
 
+    // Função interna para processar em blocos e não congelar o navegador
     async function processarBloco(inicio) {
         const tamanhoBloco = 20; 
         const fim = Math.min(inicio + tamanhoBloco, qtd);
 
         for (let i = inicio; i <= fim; i++) {
-            if (i > 1 && (i - 1) % 4 === 0) doc.addPage();
+            // Adiciona nova página a cada 4 cartelas (exceto na primeira)
+            if (i > 1 && (i - 1) % 4 === 0) {
+                doc.addPage();
+            }
             const dados = gerarNumerosCartelaFixa(i);
             desenharCartelaNoPDF(doc, i, dados, (i - 1) % 4, logoBase64);
         }
 
-        status.textContent = `Processando: ${fim} de ${qtd} cartelas...`;
+        status.textContent = `Gerando: ${fim} de ${qtd} cartelas...`;
 
         if (fim < qtd) {
+            // Dá um respiro para o navegador atualizar o texto na tela
             setTimeout(() => processarBloco(fim + 1), 10);
         } else {
-            status.textContent = "Salvando arquivo...";
+            status.textContent = "Finalizando arquivo... aguarde o download.";
             setTimeout(() => {
-                doc.save(`bingo-cartelas-${qtd}.pdf`);
-                status.textContent = "PDF Gerado com sucesso!";
+                doc.save(`bingo-casa-de-negocios-${qtd}-cartelas.pdf`);
+                status.textContent = "PDF gerado com sucesso!";
             }, 500);
         }
     }
 
-    status.textContent = "Iniciando geração...";
     processarBloco(1);
 }
 
@@ -86,7 +122,9 @@ function desenharCartelaNoPDF(doc, id, dados, indexPagina, logoBase64) {
     const x = margemX + (colPDF * (largura + 10));
     const y = margemY + (linPDF * (altura + 15));
 
-    if (logoBase64) doc.addImage(logoBase64, 'PNG', x, y, 35, 0);
+    if (logoBase64) {
+        try { doc.addImage(logoBase64, 'PNG', x, y, 35, 0); } catch(e){}
+    }
     
     doc.setFontSize(9);
     doc.setTextColor(100);
@@ -95,7 +133,7 @@ function desenharCartelaNoPDF(doc, id, dados, indexPagina, logoBase64) {
     const gridY = y + 15, tam = 16, raio = 3;
     const letras = ['B', 'I', 'N', 'G', 'O'];
 
-    // Cabeçalho Arredondado
+    // Letras do Cabeçalho com bordas arredondadas
     letras.forEach((l, i) => {
         const cor = (l === 'I' || l === 'G') ? COR_AMARELO : COR_AZUL;
         doc.setFillColor(...cor);
@@ -105,7 +143,7 @@ function desenharCartelaNoPDF(doc, id, dados, indexPagina, logoBase64) {
         doc.text(l, x + (i * tam) + 8, gridY + 11, { align: 'center' });
     });
 
-    // Grade de Números Arredondada
+    // Células dos números
     doc.setTextColor(50);
     doc.setFontSize(16);
     for (let r = 0; r < 5; r++) {
@@ -115,44 +153,18 @@ function desenharCartelaNoPDF(doc, id, dados, indexPagina, logoBase64) {
             doc.roundedRect(cX, cY, tam, tam, 1.5, 1.5, 'S');
             
             if (r === 2 && c === 2) {
-                if (imagemCentroBase64) doc.addImage(imagemCentroBase64, 'PNG', cX + 2, cY + 2, tam - 4, tam - 4);
-                else { 
+                if (imagemCentroBase64) {
+                    try { doc.addImage(imagemCentroBase64, 'PNG', cX + 2, cY + 2, tam - 4, tam - 4); } catch(e){}
+                } else { 
                     doc.setFontSize(7); doc.text("FREE", cX + 8, cY + 9, { align: 'center' }); doc.setFontSize(16); 
                 }
             } else {
-                const num = dados[letras[c].toLowerCase()][r];
+                const letraChave = letras[c].toLowerCase();
+                const num = dados[letraChave][r];
                 doc.text(String(num), cX + 8, cY + 11, { align: 'center' });
             }
         }
     }
-}
-
-function carregarLogoBase64() {
-    return new Promise((resolve) => {
-        const img = new Image();
-        // Se demorar mais de 2 segundos, resolve como null para não travar o PDF
-        const timeout = setTimeout(() => {
-            console.warn("Logo demorou demais para carregar. Gerando sem logo.");
-            resolve(null);
-        }, 2000);
-
-        img.onload = function () {
-            clearTimeout(timeout);
-            const canvas = document.createElement('canvas');
-            canvas.width = this.width;
-            canvas.height = this.height;
-            canvas.getContext('2d').drawImage(this, 0, 0);
-            resolve(canvas.toDataURL('image/png'));
-        };
-
-        img.onerror = () => {
-            clearTimeout(timeout);
-            console.error("Erro ao carregar logo.png. Verifique se o arquivo existe.");
-            resolve(null);
-        };
-
-        img.src = 'logo.png'; // Verifique se este nome está EXATAMENTE igual ao seu arquivo
-    });
 }
 
 // --- 3. LÓGICA DO JOGO ---
@@ -163,11 +175,10 @@ function iniciarJogoCompleto() {
 
     numerosDisponiveis = Array.from({ length: 75 }, (_, i) => i + 1);
     numerosSorteados = [];
-    statusGanhadores = {}; // Reseta prêmios
+    statusGanhadores = {}; 
 
     document.getElementById('numero-sorteado-display').textContent = '--';
     
-    // Limpa Tabuleiro Visual
     const letras = ['b','i','n','g','o'];
     letras.forEach(l => {
         const container = document.getElementById(`cells-${l}`);
@@ -183,13 +194,16 @@ function iniciarJogoCompleto() {
     jogoAtivo = true;
     document.getElementById('area-sorteio').classList.remove('escondida');
     const status = document.getElementById('status-bingo');
-    status.textContent = `Monitorando ${qtdCartelasJogando} cartelas...`;
+    status.textContent = `Jogo iniciado! Monitorando de #1 a #${qtdCartelasJogando}`;
     status.classList.remove('alerta-bingo');
 }
 
 function sortearNumero() {
-    if (!jogoAtivo && numerosSorteados.length === 0) return alert("Inicie o sorteio primeiro!");
-    if (numerosDisponiveis.length === 0) return alert("Fim do sorteio!");
+    if (!jogoAtivo) return alert("Inicie o sorteio primeiro!");
+    if (numerosDisponiveis.length === 0) return alert("Todos os números já saíram!");
+
+    const status = document.getElementById('status-bingo');
+    status.classList.remove('alerta-bingo');
 
     const idx = Math.floor(Math.random() * numerosDisponiveis.length);
     const num = numerosDisponiveis.splice(idx, 1)[0];
@@ -200,8 +214,7 @@ function sortearNumero() {
     if (el) el.classList.add('drawn');
 
     const novosVencedores = verificarBingo();
-    const status = document.getElementById('status-bingo');
-
+    
     if (novosVencedores.length > 0) {
         novosVencedores.forEach(v => {
             if (!statusGanhadores[v.id]) statusGanhadores[v.id] = [];
@@ -211,20 +224,21 @@ function sortearNumero() {
         const idsTexto = novosVencedores.map(v => `nº ${v.id} (${v.motivo})`).join(', ');
         status.textContent = `BINGO! ${idsTexto}! 🎉`;
         status.classList.add('alerta-bingo');
-        alert(`🎉 BINGO!\n${idsTexto}`);
+        
+        // Timeout pequeno para o navegador desenhar a bola marcada antes do alert
+        setTimeout(() => { alert(`🎉 BINGO!\n${idsTexto}`); }, 100);
     } else {
-        status.textContent = `Pedras: ${numerosSorteados.length}. Monitorando ${qtdCartelasJogando} cartelas...`;
-        status.classList.remove('alerta-bingo');
+        status.textContent = `Pedras sorteadas: ${numerosSorteados.length}`;
     }
 }
 
 function verificarBingo() {
     const querLinhaColuna = document.getElementById('check-linha-coluna').checked;
     const querCheia = document.getElementById('check-cheia').checked;
-    let vencedores = [];
+    let vencedoresNestaRodada = [];
 
     for (let id = 1; id <= qtdCartelasJogando; id++) {
-        // Se já fechou a cartela, ignora
+        // Se já fechou a cartela, não ganha mais nada
         if (statusGanhadores[id] && statusGanhadores[id].includes("FECHOU A CARTELA")) continue;
 
         const dados = gerarNumerosCartelaFixa(id);
@@ -239,25 +253,36 @@ function verificarBingo() {
             }
         }
 
-        // Verifica Linha/Coluna
+        let ganhouAgora = false;
+        let motivo = "";
+
+        // 1. Linha/Coluna (se ainda não ganhou isso)
         if (querLinhaColuna && (!statusGanhadores[id] || !statusGanhadores[id].includes("fez LINHA/COLUNA"))) {
             let ganhouLC = false;
             for (let r = 0; r < 5; r++) if (matriz[r].every(v => v)) ganhouLC = true;
             for (let c = 0; c < 5; c++) if ([0,1,2,3,4].every(r => matriz[r][c])) ganhouLC = true;
-            
-            if (ganhouLC) vencedores.push({ id, motivo: "fez LINHA/COLUNA" });
+
+            if (ganhouLC) {
+                ganhouAgora = true;
+                motivo = "fez LINHA/COLUNA";
+                vencedoresNestaRodada.push({ id, motivo });
+            }
         }
 
-        // Verifica Cheia
+        // 2. Cartela Cheia
         if (querCheia) {
             let total = 0;
             matriz.forEach(l => l.forEach(v => { if(v) total++; }));
-            if (total === 25) vencedores.push({ id, motivo: "FECHOU A CARTELA" });
+            if (total === 25) {
+                vencedoresNestaRodada.push({ id, motivo: "FECHOU A CARTELA" });
+            }
         }
     }
-    return vencedores;
+    return vencedoresNestaRodada;
 }
 
 function reiniciarJogo() {
-    if (confirm("Reiniciar sorteio?")) iniciarJogoCompleto();
+    if (confirm("Deseja mesmo reiniciar o bingo?")) {
+        iniciarJogoCompleto();
+    }
 }
