@@ -138,7 +138,7 @@ function iniciarJogoCompleto() {
 
     numerosDisponiveis = Array.from({ length: 75 }, (_, i) => i + 1);
     numerosSorteados = [];
-    // RESET DOS GANHADORES:
+    statusGanhadores = {};
     ganhadoresJaAlertados.clear(); 
     
     document.getElementById('numero-sorteado-display').textContent = '--';
@@ -189,24 +189,17 @@ function sortearNumero() {
     
     if (novosVencedores.length > 0) {
         novosVencedores.forEach(v => {
-            // Adiciona na lista de "trava" para não ganhar de novo
-            ganhadoresJaAlertados.add(v.id);
-            
-            // Exemplo de alerta (pode acumular se houver vários ao mesmo tempo)
-            console.log(`Bingo na Cartela ${v.id}`);
+            // Registra que ESTE ID já ganhou ESTE MOTIVO
+            if (!statusGanhadores[v.id]) statusGanhadores[v.id] = [];
+            statusGanhadores[v.id].push(v.motivo);
         });
 
-        // Pega o último ganhador da rodada para exibir no status
-        const ultimo = novosVencedores[novosVencedores.length - 1];
-        status.textContent = `BINGO! Cartela nº ${ultimo.id} ${ultimo.motivo}! 🎉`;
-        status.classList.add('alerta-bingo');
+        const status = document.getElementById('status-bingo');
+        const idsTexto = novosVencedores.map(v => `nº ${v.id} (${v.motivo})`).join(', ');
         
-        // Alerta combinando todos os IDs daquela rodada
-        const idsTexto = novosVencedores.map(v => v.id).join(', ');
-        alert(`🎉 BINGO!\nCartela(s) nº: ${idsTexto} ganharam agora!`);
-    } else {
-        status.textContent = `Pedras: ${numerosSorteados.length}. Monitorando ${qtdCartelasJogando} cartelas...`;
-    }
+        status.textContent = `BINGO! ${idsTexto}! 🎉`;
+        status.classList.add('alerta-bingo');
+        alert(`🎉 BINGO!\n${idsTexto}`);
 }
 
 function verificarBingo() {
@@ -215,13 +208,14 @@ function verificarBingo() {
     let vencedoresNestaRodada = [];
 
     for (let id = 1; id <= qtdCartelasJogando; id++) {
-        // PULA CARTELAS QUE JÁ GANHARAM
-        if (ganhadoresJaAlertados.has(id)) continue; 
+        // Se a cartela já ganhou "BINGO CHEIO", ela sai do jogo definitivamente
+        if (statusGanhadores[id] && statusGanhadores[id].includes("FECHOU A CARTELA")) continue;
 
         const dados = gerarNumerosCartelaFixa(id);
         const letras = ['b', 'i', 'n', 'g', 'o'];
         let matriz = [];
 
+        // Monta matriz de acertos
         for (let r = 0; r < 5; r++) {
             matriz[r] = [];
             for (let c = 0; c < 5; c++) {
@@ -230,29 +224,37 @@ function verificarBingo() {
             }
         }
 
-        let ganhou = false;
-        let motivo = "";
-
+        // 1. VERIFICAÇÃO DE LINHA/COLUNA
         if (querLinhaColuna) {
-            for (let r = 0; r < 5; r++) {
-                if (matriz[r].every(v => v)) { ganhou = true; motivo = "fez LINHA"; break; }
-            }
-            if (!ganhou) {
-                for (let c = 0; c < 5; c++) {
-                    if ([0,1,2,3,4].every(r => matriz[r][c])) { ganhou = true; motivo = "fez COLUNA"; break; }
+            // Só verifica linha/coluna se ela ainda NÃO ganhou isso
+            if (!statusGanhadores[id] || !statusGanhadores[id].includes("fez LINHA/COLUNA")) {
+                let ganhouLC = false;
+                // Linhas
+                for (let r = 0; r < 5; r++) {
+                    if (matriz[r].every(v => v)) { ganhouLC = true; break; }
+                }
+                // Colunas (se não ganhou em linha)
+                if (!ganhouLC) {
+                    for (let c = 0; c < 5; c++) {
+                        if ([0,1,2,3,4].every(r => matriz[r][c])) { ganhouLC = true; break; }
+                    }
+                }
+
+                if (ganhouLC) {
+                    vencedoresNestaRodada.push({ id, motivo: "fez LINHA/COLUNA" });
+                    // Importante: Não damos "continue" aqui, pois ela pode fechar a cartela na mesma pedra!
                 }
             }
         }
 
-        if (!ganhou && querCheia) {
+        // 2. VERIFICAÇÃO DE CARTELA CHEIA
+        if (querCheia) {
             let total = 0;
             matriz.forEach(l => l.forEach(v => { if(v) total++; }));
-            if (total === 25) { ganhou = true; motivo = "FECHOU A CARTELA"; }
-        }
-
-        if (ganhou) {
-            vencedoresNestaRodada.push({ id, motivo });
+            if (total === 25) {
+                vencedoresNestaRodada.push({ id, motivo: "FECHOU A CARTELA" });
+            }
         }
     }
-    return vencedoresNestaRodada; // Retorna lista de quem ganhou AGORA
+    return vencedoresNestaRodada;
 }
