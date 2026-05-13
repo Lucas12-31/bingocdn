@@ -194,7 +194,10 @@ function sortearNumero() {
     const num = numerosDisponiveis.splice(idx, 1)[0];
     numerosSorteados.push(num);
 
+    // Atualiza o display grande do topo
     document.getElementById('numero-sorteado-display').textContent = num;
+    
+    // Marca a célula no tabuleiro
     const el = document.getElementById(`num-${num}`);
     if (el) el.classList.add('drawn');
 
@@ -211,7 +214,8 @@ function sortearNumero() {
         status.classList.add('alerta-bingo');
         setTimeout(() => { alert(`🎉 BINGO!\n${idsTexto}`); }, 100);
     } else {
-        status.textContent = `Pedras sorteadas: ${numerosSorteados.length}`;
+        // AQUI A MUDANÇA: Agora exibe o último número sorteado em destaque no meio da tela
+        status.innerHTML = `Último número sorteado: <strong>${num}</strong> (Total: ${numerosSorteados.length})`;
     }
 }
 
