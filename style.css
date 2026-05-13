@@ -4,96 +4,145 @@
     --cinza-fundo: #f0f2f5;
     --cinza-borda: #e1e4e8;
     --branco: #ffffff;
+    --texto-suave: #666;
 }
 
-body {
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+/* --- AJUSTE PARA ELIMINAR ROLAGEM --- */
+* {
+    box-sizing: border-box; /* Garante que padding/bordas não aumentem o tamanho dos elementos */
+}
+
+body, html {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    height: 100%;
+    overflow: hidden; /* Trava qualquer rolagem indesejada no body */
     background-color: var(--cinza-fundo);
-    margin: 0; padding: 0;
-    display: block;
-    overflow-x: hidden;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 
 .container-telao {
     display: flex;
     width: 100vw;
     height: 100vh;
+    overflow: hidden; /* Garante que o container ocupe apenas a área visível */
 }
 
+/* --- COLUNAS LATERAIS --- */
 .lateral {
     flex: 0 0 500px;
     display: flex;
     align-items: center;
     justify-content: center;
     background-color: var(--branco);
-    padding: 40px;
+    padding: 20px;
 }
 
 .logo-lateral {
     width: 100%;
-    max-width: 400px;
+    max-width: 350px;
     opacity: 0.15;
 }
 
+/* --- PAINEL CENTRAL --- */
 .container-principal {
     flex: 1;
-    max-width: 1300px;
-    margin: 0 auto;
+    height: 100vh; /* Ocupa a altura total da tela */
+    margin: 0;
     background: var(--branco);
-    padding: 30px;
+    padding: 25px;
     box-shadow: 0 0 40px rgba(0,0,0,0.05);
-    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto; /* Permite rolagem APENAS dentro do painel central se necessário */
 }
 
+/* --- DESIGN DOS COMPONENTES (MODERNO/ARREDONDADO) --- */
 .barra-topo {
     display: flex;
     justify-content: space-between;
     align-items: center;
     border-bottom: 2px solid var(--cinza-borda);
-    padding-bottom: 20px;
+    padding-bottom: 15px;
+    margin-bottom: 20px;
 }
 
-.logo-site { max-width: 250px; }
+.logo-site { max-width: 220px; }
 
 .numero-grande-header {
-    font-size: 110px;
+    font-size: 100px;
     font-weight: bold;
     color: var(--azul-escuro);
     background: #f1f1f1;
-    width: 180px; height: 180px;
+    width: 160px; 
+    height: 160px;
     display: flex;
     justify-content: center;
     align-items: center;
     border-radius: 25px;
+    box-shadow: inset 0 2px 5px rgba(0,0,0,0.05);
 }
 
 .status-bingo {
     text-align: center;
-    font-size: 24px;
-    padding: 20px;
+    font-size: 22px;
+    padding: 15px;
     background: #f8f9fa;
     border-radius: 15px;
-    margin: 20px 0;
+    margin: 15px 0;
     font-weight: 600;
+    border: 1px solid #eee;
 }
 
 .status-bingo strong {
-    font-size: 50px;
+    font-size: 45px;
     color: var(--azul-escuro);
     margin-left: 15px;
 }
 
+/* --- BOTÕES E INPUTS --- */
+.container-principal button {
+    padding: 10px 20px;
+    cursor: pointer;
+    border: none;
+    border-radius: 10px;
+    font-weight: 600;
+    font-size: 16px;
+    transition: all 0.2s ease;
+}
+
+#btn-gerar-pdf { background-color: var(--amarelo) !important; color: var(--azul-escuro) !important; }
+#btn-iniciar-jogo, #btn-sortear { background-color: var(--azul-escuro) !important; color: white !important; }
+#btn-reiniciar { background-color: #e2e6ea !important; color: var(--texto-suave) !important; }
+
+input[type="number"] {
+    width: 80px;
+    padding: 10px;
+    border: 1px solid var(--cinza-borda);
+    border-radius: 10px;
+    font-size: 16px;
+}
+
+.controles-cartela, .controles-jogo {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    margin-bottom: 15px;
+}
+
+/* --- TABULEIRO --- */
 .bingo-board {
     display: grid;
     grid-template-columns: repeat(5, 1fr);
-    gap: 20px;
+    gap: 15px;
 }
 
 .header-cell {
-    font-size: 40px;
+    font-size: 35px;
     font-weight: 900;
     color: white;
-    padding: 15px 0;
+    padding: 10px 0;
     border-radius: 15px;
     text-align: center;
 }
@@ -103,31 +152,32 @@ body {
 
 .number-cells {
     display: grid;
-    grid-template-columns: repeat(2, 60px);
-    gap: 12px;
+    grid-template-columns: repeat(2, 55px);
+    gap: 10px;
     justify-content: center;
-    margin-top: 20px;
+    margin-top: 15px;
 }
 
 .cell {
-    width: 60px; height: 60px;
+    width: 55px; 
+    height: 55px;
     border-radius: 50%;
     background-color: #fff;
     border: 1px solid var(--cinza-borda);
     display: flex;
     justify-content: center;
     align-items: center;
-    font-size: 24px;
+    font-size: 22px;
     font-weight: bold;
     color: #ccc;
 }
 
-.cell.drawn { transform: scale(1.2); box-shadow: 0 5px 15px rgba(0,0,0,0.2); }
+.cell.drawn { transform: scale(1.15); box-shadow: 0 5px 15px rgba(0,0,0,0.2); }
 .col-b .cell.drawn, .col-n .cell.drawn, .col-o .cell.drawn { background: var(--amarelo); color: var(--azul-escuro); }
 .col-i .cell.drawn, .col-g .cell.drawn { background: var(--azul-escuro); color: var(--amarelo); }
 
 .escondida { display: none; }
-.botoes-sorteio { text-align: center; margin-bottom: 25px; }
-.botoes-sorteio button { padding: 15px 40px; border-radius: 12px; font-weight: bold; font-size: 20px; cursor: pointer; border: none; margin: 0 10px; }
+.botoes-sorteio { text-align: center; margin-top: 10px; margin-bottom: 20px; }
 
+/* Remove laterais em telas menores */
 @media (max-width: 1800px) { .lateral { display: none; } }
