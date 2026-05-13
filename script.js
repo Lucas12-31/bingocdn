@@ -1,4 +1,4 @@
-// --- script.js (Versão com Duas Logos: Completa e Símbolo) ---
+// --- script.js (Versão Final Unificada e Corrigida) ---
 
 const COR_AZUL = [0, 45, 83];
 const COR_AMARELO = [243, 171, 0];
@@ -11,11 +11,10 @@ let statusGanhadores = {};
 
 // --- 1. CARREGAMENTO DE IMAGENS ---
 
-// Função auxiliar para carregar qualquer imagem PNG/JPG e transformar em dado para o PDF
 function carregarImagem(caminho) {
     return new Promise((resolve) => {
         const img = new Image();
-        const timeout = setTimeout(() => resolve(null), 2000); // Timeout de segurança
+        const timeout = setTimeout(() => resolve(null), 2000);
 
         img.onload = function () {
             clearTimeout(timeout);
@@ -33,7 +32,33 @@ function carregarImagem(caminho) {
     });
 }
 
-// --- 2. GERAÇÃO DO PDF ---
+// --- 2. UTILITÁRIOS DE GERAÇÃO ---
+
+function seededRandom(seed) {
+    const x = Math.sin(seed++) * 10000;
+    return x - Math.floor(x);
+}
+
+function gerarNumerosCartelaFixa(idCartela) {
+    const cartela = { b: [], i: [], n: [], g: [], o: [] };
+    let seed = idCartela * 123.45;
+    const intervalos = {
+        b: [1, 15], i: [16, 30], n: [31, 45], g: [46, 60], o: [61, 75]
+    };
+
+    for (let letra in intervalos) {
+        let min = intervalos[letra][0], max = intervalos[letra][1];
+        let possiveis = Array.from({ length: max - min + 1 }, (_, i) => min + i);
+        for (let j = 0; j < 5; j++) {
+            let index = Math.floor(seededRandom(seed++) * possiveis.length);
+            cartela[letra].push(possiveis.splice(index, 1)[0]);
+        }
+        cartela[letra].sort((a, b) => a - b);
+    }
+    return cartela;
+}
+
+// --- 3. GERAÇÃO DO PDF ---
 
 async function gerarPDFCartelas() {
     const qtd = parseInt(document.getElementById('qtd-imprimir').value);
@@ -44,10 +69,8 @@ async function gerarPDFCartelas() {
     const status = document.getElementById('status-bingo');
 
     status.textContent = "Carregando logos...";
-    
-    // CARREGA AS DUAS IMAGENS (Certifique-se que os nomes dos arquivos estão corretos na sua pasta)
-    const logoCompleta = await carregarImagem('logo.png');       // Logo com nome (Topo)
-    const simboloCentro = await carregarImagem('simbolo.png');   // Só o ícone (Meio da cartela)
+    const logoCompleta = await carregarImagem('logo.png');
+    const simboloCentro = await carregarImagem('simbolo.png');
 
     status.textContent = "Iniciando geração...";
 
@@ -56,55 +79,11 @@ async function gerarPDFCartelas() {
         const fim = Math.min(inicio + tamanhoBloco, qtd);
 
         for (let i = inicio; i <= fim; i++) {
+            // Nova página a cada 4 cartelas
             if (i > 1 && (i - 1) % 4 === 0) doc.addPage();
             
             const dados = gerarNumerosCartelaFixa(i);
-            const largura = 90, altura = 110, margemX = 15, margemY = 15;
-            const colPDF = (i - 1) % 4 % 2, linPDF = Math.floor(((i - 1) % 4) / 2);
-            const x = margemX + (colPDF * (largura + 10));
-            const y = margemY + (linPDF * (altura + 15));
-
-            // 1. Logo Completa no Topo
-            if (logoCompleta) {
-                doc.addImage(logoCompleta, 'PNG', x, y, 35, 0);
-            }
-
-            doc.setFontSize(9);
-            doc.setTextColor(100);
-            doc.text(`Nº ${String(i).padStart(3, '0')}`, x + largura - 5, y + 5, { align: 'right' });
-
-            const gridY = y + 15, tam = 16;
-            const letras = ['B', 'I', 'N', 'G', 'O'];
-
-            letras.forEach((l, idx) => {
-                // Cabeçalho BINGO
-                doc.setFillColor(...((l === 'I' || l === 'G') ? COR_AMARELO : COR_AZUL));
-                doc.roundedRect(x + (idx * tam), gridY, tam, tam, 3, 3, 'F');
-                doc.setTextColor((l === 'I' || l === 'G') ? 0 : 255);
-                doc.setFontSize(20);
-                doc.text(l, x + (idx * tam) + 8, gridY + 11, { align: 'center' });
-                
-                // Células dos Números
-                for(let r=0; r<5; r++) {
-                    const cX = x + (idx * tam), cY = gridY + tam + (r * tam);
-                    doc.setDrawColor(200);
-                    doc.roundedRect(cX, cY, tam, tam, 2, 2, 'S');
-                    doc.setTextColor(50);
-                    doc.setFontSize(16);
-
-                    if (idx === 2 && r === 2) {
-                        // 2. Símbolo apenas no Centro
-                        if (simboloCentro) {
-                            doc.addImage(simboloCentro, 'PNG', cX + 3, cY + 3, tam - 6, tam - 6);
-                        } else {
-                            doc.setFontSize(8); doc.text("FREE", cX + 8, cY + 10, { align: 'center' });
-                        }
-                    } else {
-                        const num = dados[l.toLowerCase()][r];
-                        doc.text(String(num), cX + 8, cY + 11, { align: 'center' });
-                    }
-                }
-            });
+            desenharCartelaNoPDF(doc, i, dados, (i - 1) % 4, logoCompleta, simboloCentro);
         }
 
         status.textContent = `Gerando: ${fim} de ${qtd}...`;
@@ -120,14 +99,15 @@ async function gerarPDFCartelas() {
     processarBloco(1);
 }
 
-function desenharCartelaNoPDF(doc, id, dados, indexPagina, logoBase64) {
+function desenharCartelaNoPDF(doc, id, dados, indexPagina, logoTopo, logoCentro) {
     const largura = 90, altura = 110, margemX = 15, margemY = 15;
     const colPDF = indexPagina % 2, linPDF = Math.floor(indexPagina / 2);
     const x = margemX + (colPDF * (largura + 10));
     const y = margemY + (linPDF * (altura + 15));
 
-    if (logoBase64) {
-        try { doc.addImage(logoBase64, 'PNG', x, y, 35, 0); } catch(e){}
+    // Logo no Topo
+    if (logoTopo) {
+        try { doc.addImage(logoTopo, 'PNG', x, y, 35, 0); } catch(e){}
     }
     
     doc.setFontSize(9);
@@ -137,7 +117,7 @@ function desenharCartelaNoPDF(doc, id, dados, indexPagina, logoBase64) {
     const gridY = y + 15, tam = 16, raio = 3;
     const letras = ['B', 'I', 'N', 'G', 'O'];
 
-    // Letras do Cabeçalho com bordas arredondadas
+    // Cabeçalho BINGO
     letras.forEach((l, i) => {
         const cor = (l === 'I' || l === 'G') ? COR_AMARELO : COR_AZUL;
         doc.setFillColor(...cor);
@@ -149,7 +129,6 @@ function desenharCartelaNoPDF(doc, id, dados, indexPagina, logoBase64) {
 
     // Células dos números
     doc.setTextColor(50);
-    doc.setFontSize(16);
     for (let r = 0; r < 5; r++) {
         for (let c = 0; c < 5; c++) {
             const cX = x + (c * tam), cY = gridY + tam + (r * tam);
@@ -157,12 +136,14 @@ function desenharCartelaNoPDF(doc, id, dados, indexPagina, logoBase64) {
             doc.roundedRect(cX, cY, tam, tam, 1.5, 1.5, 'S');
             
             if (r === 2 && c === 2) {
-                if (imagemCentroBase64) {
-                    try { doc.addImage(imagemCentroBase64, 'PNG', cX + 2, cY + 2, tam - 4, tam - 4); } catch(e){}
+                // Logo no Centro
+                if (logoCentro) {
+                    try { doc.addImage(logoCentro, 'PNG', cX + 3, cY + 3, tam - 6, tam - 6); } catch(e){}
                 } else { 
-                    doc.setFontSize(7); doc.text("FREE", cX + 8, cY + 9, { align: 'center' }); doc.setFontSize(16); 
+                    doc.setFontSize(7); doc.text("FREE", cX + 8, cY + 9, { align: 'center' });
                 }
             } else {
+                doc.setFontSize(16);
                 const letraChave = letras[c].toLowerCase();
                 const num = dados[letraChave][r];
                 doc.text(String(num), cX + 8, cY + 11, { align: 'center' });
@@ -171,7 +152,7 @@ function desenharCartelaNoPDF(doc, id, dados, indexPagina, logoBase64) {
     }
 }
 
-// --- 3. LÓGICA DO JOGO ---
+// --- 4. LÓGICA DO JOGO ---
 
 function iniciarJogoCompleto() {
     qtdCartelasJogando = parseInt(document.getElementById('qtd-jogando').value);
@@ -228,8 +209,6 @@ function sortearNumero() {
         const idsTexto = novosVencedores.map(v => `nº ${v.id} (${v.motivo})`).join(', ');
         status.textContent = `BINGO! ${idsTexto}! 🎉`;
         status.classList.add('alerta-bingo');
-        
-        // Timeout pequeno para o navegador desenhar a bola marcada antes do alert
         setTimeout(() => { alert(`🎉 BINGO!\n${idsTexto}`); }, 100);
     } else {
         status.textContent = `Pedras sorteadas: ${numerosSorteados.length}`;
@@ -242,7 +221,6 @@ function verificarBingo() {
     let vencedoresNestaRodada = [];
 
     for (let id = 1; id <= qtdCartelasJogando; id++) {
-        // Se já fechou a cartela, não ganha mais nada
         if (statusGanhadores[id] && statusGanhadores[id].includes("FECHOU A CARTELA")) continue;
 
         const dados = gerarNumerosCartelaFixa(id);
@@ -257,29 +235,18 @@ function verificarBingo() {
             }
         }
 
-        let ganhouAgora = false;
-        let motivo = "";
-
-        // 1. Linha/Coluna (se ainda não ganhou isso)
         if (querLinhaColuna && (!statusGanhadores[id] || !statusGanhadores[id].includes("fez LINHA/COLUNA"))) {
             let ganhouLC = false;
             for (let r = 0; r < 5; r++) if (matriz[r].every(v => v)) ganhouLC = true;
             for (let c = 0; c < 5; c++) if ([0,1,2,3,4].every(r => matriz[r][c])) ganhouLC = true;
 
-            if (ganhouLC) {
-                ganhouAgora = true;
-                motivo = "fez LINHA/COLUNA";
-                vencedoresNestaRodada.push({ id, motivo });
-            }
+            if (ganhouLC) vencedoresNestaRodada.push({ id, motivo: "fez LINHA/COLUNA" });
         }
 
-        // 2. Cartela Cheia
         if (querCheia) {
             let total = 0;
             matriz.forEach(l => l.forEach(v => { if(v) total++; }));
-            if (total === 25) {
-                vencedoresNestaRodada.push({ id, motivo: "FECHOU A CARTELA" });
-            }
+            if (total === 25) vencedoresNestaRodada.push({ id, motivo: "FECHOU A CARTELA" });
         }
     }
     return vencedoresNestaRodada;
