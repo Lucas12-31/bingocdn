@@ -183,26 +183,30 @@ function iniciarJogoCompleto() {
     status.classList.remove('alerta-bingo');
 }
 
+// --- Lógica de Sorteio com Exibição de Número e Vencedor ---
+
 function sortearNumero() {
-    if (!jogoAtivo) return alert("Inicie o sorteio primeiro!");
-    if (numerosDisponiveis.length === 0) return alert("Todos os números já saíram!");
+    if (!jogoAtivo) return;
+    if (numerosDisponiveis.length === 0) return alert("Fim do sorteio!");
 
     const status = document.getElementById('status-bingo');
     status.classList.remove('alerta-bingo');
 
+    // Sorteio
     const idx = Math.floor(Math.random() * numerosDisponiveis.length);
     const num = numerosDisponiveis.splice(idx, 1)[0];
     numerosSorteados.push(num);
 
-    // Atualiza o display grande do topo
+    // Atualiza Displays
     document.getElementById('numero-sorteado-display').textContent = num;
-    
-    // Marca a célula no tabuleiro
     const el = document.getElementById(`num-${num}`);
     if (el) el.classList.add('drawn');
 
     const novosVencedores = verificarBingo();
     
+    // TEXTO BASE: Sempre mostra o último número sorteado
+    let textoStatus = `Último número sorteado: <strong>${num}</strong>`;
+
     if (novosVencedores.length > 0) {
         novosVencedores.forEach(v => {
             if (!statusGanhadores[v.id]) statusGanhadores[v.id] = [];
@@ -210,15 +214,16 @@ function sortearNumero() {
         });
 
         const idsTexto = novosVencedores.map(v => `nº ${v.id} (${v.motivo})`).join(', ');
-        status.textContent = `BINGO! ${idsTexto}! 🎉`;
+        
+        // ADICIONA O BINGO AO TEXTO DO NÚMERO
+        status.innerHTML = `${textoStatus} <br> <span style="font-size: 1.2em; color: var(--azul-escuro);">🎉 BINGO! Cartela(s) ${idsTexto}</span>`;
         status.classList.add('alerta-bingo');
-        setTimeout(() => { alert(`🎉 BINGO!\n${idsTexto}`); }, 100);
+        
+        setTimeout(() => { alert(`🎉 BINGO!\nNúmero Sorteado: ${num}\nCartela(s): ${idsTexto}`); }, 100);
     } else {
-        // AQUI A MUDANÇA: Agora exibe o último número sorteado em destaque no meio da tela
-        status.innerHTML = `Último número sorteado: <strong>${num}</strong> (Total: ${numerosSorteados.length})`;
+        status.innerHTML = `${textoStatus} (Total: ${numerosSorteados.length})`;
     }
 }
-
 function verificarBingo() {
     const querLinhaColuna = document.getElementById('check-linha-coluna').checked;
     const querCheia = document.getElementById('check-cheia').checked;
