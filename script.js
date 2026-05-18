@@ -1,15 +1,16 @@
-// --- script.js (Versão Definitiva Unificada - Logo Conjunta) ---
-
 const COR_AZUL = [0, 45, 83];
 const COR_AMARELO = [243, 171, 0];
 
 let numerosDisponiveis = [];
 let numerosSorteados = [];
-let jogoAtivo = false;
+let jogoAtActive = false;
 let qtdCartelasJogando = 0;
 let statusGanhadores = {}; 
 
-// --- 1. CARREGAMENTO DE IMAGENS BIINDADO ---
+// Estrutura para armazenar a alocação de nomes
+let listaCorretores = [];
+
+// --- 1. CARREGAMENTO DE IMAGENS ---
 function carregarImagem(caminho) {
     return new Promise((resolve) => {
         const img = new Image();
@@ -21,22 +22,17 @@ function carregarImagem(caminho) {
         img.onload = function () {
             clearTimeout(timeout);
             const canvas = document.createElement('canvas');
-            canvas.width = this.width; 
-            canvas.height = this.height;
+            canvas.width = this.width; canvas.height = this.height;
             const ctx = canvas.getContext('2d');
             ctx.drawImage(this, 0, 0);
             resolve(canvas.toDataURL('image/png')); 
         };
-        img.onerror = () => { 
-            clearTimeout(timeout); 
-            console.error(`Erro ao carregar o arquivo: ${caminho}`);
-            resolve(null); 
-        };
+        img.onerror = () => { clearTimeout(timeout); resolve(null); };
         img.src = caminho;
     });
 }
 
-// --- 2. GERADORES MATEMÁTICOS DE CARTELA ---
+// --- 2. GERADORES DE CARTELA ---
 function seededRandom(seed) {
     const x = Math.sin(seed++) * 10000;
     return x - Math.floor(x);
@@ -58,7 +54,66 @@ function gerarNumerosCartelaFixa(idCartela) {
     return cartela;
 }
 
-// --- 3. GERAÇÃO DO PDF EM BLOCOS ---
+// --- 3. CONTROLE DA NOVA MODAL DE CORRETORES ---
+function abrirModalDistribuicao() {
+    document.getElementById('modal-distribuicao').classList.remove('escondida');
+    renderizarTabelaCorretores();
+}
+
+function fecharModalDistribuicao() {
+    document.getElementById('modal-distribuicao').classList.add('escondida');
+}
+
+function adicionarCorretorLista() {
+    const nomeInput = document.getElementById('corretor-nome');
+    const qtdInput = document.getElementById('corretor-qtd');
+    
+    const nome = nomeInput.value.trim();
+    const qtd = parseInt(qtdInput.value);
+
+    if (!nome) return alert("Por favor, insira o nome do corretor.");
+    if (!qtd || qtd <= 0) return alert("Insira uma quantidade válida.");
+
+    listaCorretores.push({ nome, qtd });
+    
+    nomeInput.value = '';
+    qtdInput.value = '1';
+    
+    renderizarTabelaCorretores();
+}
+
+function removerCorretorLista(index) {
+    listaCorretores.splice(index, 1);
+    renderizarTabelaCorretores();
+}
+
+function renderizarTabelaCorretores() {
+    const corpo = document.getElementById('lista-corretores-corpo');
+    corpo.innerHTML = '';
+    let contadorCartela = 1;
+
+    listaCorretores.forEach((c, index) => {
+        const inicio = contadorCartela;
+        const fim = contadorCartela + c.qtd - 1;
+        contadorCartela += c.qtd;
+
+        const tr = document.createElement('tr');
+        tr.style.borderBottom = "1px solid #eee";
+        tr.innerHTML = `
+            <td style="padding: 10px;">${c.nome}</td>
+            <td style="padding: 10px;">${c.qtd}</td>
+            <td style="padding: 10px;">#${String(inicio).padStart(3,'0')} até #${String(fim).padStart(3,'0')}</td>
+            <td style="padding: 10px; text-align: right;">
+                <button onclick="removerCorretorLista(${index})" style="padding: 5px 10px; background: #e74c3c !important; color: white !important; font-size:12px; border-radius:5px;">Excluir</button>
+            </td>
+        `;
+        corpo.appendChild(tr);
+    });
+
+    document.getElementById('total-cartelas-distribuidas').textContent = `Total de cartelas mapeadas: ${contadorCartela - 1}`;
+}
+
+// --- 4. GERAÇÃO DE PDF (TRADICIONAL E NOMINATIVO) ---
 async function gerarPDFCartelas() {
     const qtd = parseInt(document.getElementById('qtd-imprimir').value);
     if (!qtd || qtd <= 0) return alert("Digite a quantidade.");
@@ -66,10 +121,8 @@ async function gerarPDFCartelas() {
     const { jsPDF } = window.jspdf;
     const doc = new jsPDF('p', 'mm', 'a4');
     const status = document.getElementById('status-bingo');
-    
     status.textContent = "Carregando logos...";
     
-    // Carrega apenas a nova logo conjunta e o símbolo do centro
     const logoTopo = await carregarImagem('logo.png');           
     const logoCentro = await carregarImagem('simbolo.png');       
 
@@ -81,25 +134,88 @@ async function gerarPDFCartelas() {
         for (let i = inicio; i <= fim; i++) {
             if (i > 1 && (i - 1) % 4 === 0) doc.addPage();
             const dados = gerarNumerosCartelaFixa(i);
-            desenharCartelaNoPDF(doc, i, dados, (i - 1) % 4, logoTopo, logoCentro);
+            desenharCartelaNoPDF(doc, i, dados, (i - 1) % 4, logoTopo, logoCentro, null);
         }
         status.textContent = `Gerando: ${fim} de ${qtd}...`;
         if (fim < qtd) { setTimeout(() => processarBloco(fim + 1), 10); } 
-        else { doc.save(`bingo-casa-de-negocios.pdf`); status.textContent = "PDF Gerado com sucesso!"; }
+        else { doc.save(`bingo-simples-${qtd}-cartelas.pdf`); status.textContent = "PDF Simples Gerado!"; }
     }
     processarBloco(1);
 }
 
-function desenharCartelaNoPDF(doc, id, dados, indexPagina, logoTopo, logoCentro) {
+// Executa a geração do PDF lendo a tabela nominal de corretores
+async function gerarPDFNominativo() {
+    if (listaCorretores.length === 0) return alert("Adicione pelo menos um corretor na lista.");
+    
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF('p', 'mm', 'a4');
+    const status = document.getElementById('status-bingo');
+    
+    fecharModalDistribuicao();
+    status.textContent = "Carregando logotipos...";
+    
+    const logoTopo = await carregarImagem('logo.png');           
+    const logoCentro = await carregarImagem('simbolo.png');
+
+    // Transforma o mapeamento flat dos corretores por ID
+    let mapaNomes = [];
+    let idAtual = 1;
+    listaCorretores.forEach(c => {
+        for(let j=0; j < c.qtd; j++) {
+            mapaNomes[idAtual] = c.nome;
+            idAtual++;
+        }
+    });
+
+    const totalCartelas = idAtual - 1;
+    status.textContent = "Iniciando geração nominal...";
+
+    async function processarBlocoNominativo(inicio) {
+        const tamanhoBloco = 20;
+        const fim = Math.min(inicio + tamanhoBloco, totalCartelas);
+
+        for (let i = inicio; i <= fim; i++) {
+            if (i > 1 && (i - 1) % 4 === 0) doc.addPage();
+            const dados = gerarNumerosCartelaFixa(i);
+            const nomeDono = mapaNomes[i] || null;
+            desenharCartelaNoPDF(doc, i, dados, (i - 1) % 4, logoTopo, logoCentro, nomeDono);
+        }
+
+        status.textContent = `Gerando Nominal: ${fim} de ${totalCartelas}...`;
+
+        if (fim < totalCartelas) {
+            setTimeout(() => processarBlocoNominativo(fim + 1), 10);
+        } else {
+            doc.save(`bingo-nominativo-${totalCartelas}-cartelas.pdf`);
+            status.textContent = "PDF Nominal gerado com sucesso!";
+        }
+    }
+
+    processarBlocoNominativo(1);
+}
+
+function desenhoLinhaSuave(doc, x1, y1, x2, y2) {
+    doc.setDrawColor(230); doc.setLineWidth(0.2);
+    doc.line(x1, y1, x2, y2);
+}
+
+function desenharCartelaNoPDF(doc, id, dados, indexPagina, logoTopo, logoCentro, nomeDono = null) {
     const largura = 90, altura = 110, margemX = 15, margemY = 15;
     const colPDF = indexPagina % 2, linPDF = Math.floor(indexPagina / 2);
     const x = margemX + (colPDF * (largura + 10)), y = margemY + (linPDF * (altura + 15));
     
-    // Renderiza a nova logo conjunta com 55mm de largura total
     if (logoTopo) {
         try { doc.addImage(logoTopo, 'PNG', x, y + 1, 55, 0); } catch(e){}
     }
     
+    // EXIBIÇÃO DO NOME DO CORRETOR NO PDF (Se houver)
+    if (nomeDono) {
+        doc.setFontSize(8); doc.setFont("Helvetica", "bold"); doc.setTextColor(0, 45, 83);
+        doc.text(`Corretor: ${nomeDono.toUpperCase()}`, x, y + 12);
+        desenhoLinhaSuave(doc, x, y + 13, x + largura, y + 13);
+    }
+    
+    doc.setFont("Helvetica", "normal");
     doc.setFontSize(9); doc.setTextColor(100);
     doc.text(`Nº ${String(id).padStart(3, '0')}`, x + largura - 2, y + 5, { align: 'right' });
     
@@ -123,7 +239,7 @@ function desenharCartelaNoPDF(doc, id, dados, indexPagina, logoTopo, logoCentro)
     });
 }
 
-// --- 4. CONTROLADORES DA LÓGICA DO JOGO ---
+// --- 5. CONTROLADORES DO JOGO ---
 function iniciarJogoCompleto() {
     qtdCartelasJogando = parseInt(document.getElementById('qtd-jogando').value);
     if (!qtdCartelasJogando) return alert("Digite a quantidade.");
@@ -139,12 +255,12 @@ function iniciarJogoCompleto() {
             container.appendChild(d);
         }
     });
-    jogoAtivo = true; document.getElementById('area-sorteio').classList.remove('escondida');
+    jogoAtActive = true; document.getElementById('area-sorteio').classList.remove('escondida');
     document.getElementById('status-bingo').textContent = "Jogo iniciado!";
 }
 
 function sortearNumero() {
-    if (!jogoAtivo) return;
+    if (!jogoAtActive) return;
     if (numerosDisponiveis.length === 0) return alert("Fim do sorteio!");
 
     const status = document.getElementById('status-bingo');
@@ -165,16 +281,13 @@ function sortearNumero() {
             statusGanhadores[v.id].push(v.motivo); 
         });
         const idsTexto = novosVencedores.map(v => `nº ${v.id} (${v.motivo})`).join(', ');
-        
         status.innerHTML = `${textoStatus} <br> <span style="color: var(--azul-escuro);">🎉 BINGO! Cartela(s) ${idsTexto}</span>`;
-        
         abrirModalBingo(num, idsTexto);
     } else {
         status.innerHTML = `${textoStatus} (Total: ${numerosSorteados.length})`;
     }
 }
 
-// --- 5. POP-UP MODAL CUSTOMIZADO DE VITÓRIA ---
 function abrirModalBingo(numero, cartelas) {
     document.getElementById('modal-numero-vencedor').textContent = numero;
     document.getElementById('modal-cartelas-vencedoras').innerHTML = `Cartela(s): <br> <strong>${cartelas}</strong>`;
