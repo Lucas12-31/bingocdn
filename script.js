@@ -60,50 +60,78 @@ function gerarNumerosCartelaFixa(idCartela) {
 
 // --- 3. GERAÇÃO DO PDF ---
 
+// --- ATUALIZAÇÃO DA GERAÇÃO DO PDF PARA DUAS LOGOS NO TOPO ---
+
 async function gerarPDFCartelas() {
     const qtd = parseInt(document.getElementById('qtd-imprimir').value);
     if (!qtd || qtd <= 0) return alert("Digite a quantidade.");
-
+    
     const { jsPDF } = window.jspdf;
     const doc = new jsPDF('p', 'mm', 'a4');
     const status = document.getElementById('status-bingo');
-
+    
     status.textContent = "Carregando logos...";
-    const logoCompleta = await carregarImagem('logo.png');
-    const simboloCentro = await carregarImagem('simbolo.png');
+    
+    // CARREGA OS TRÊS ARQUIVOS DA SUA PASTA
+    const logoTopo = await carregarImagem('logo.png');           // Casa de Negócios completa
+    const logoParceiro = await carregarImagem('Med.png'); // MedSênior (Novo)
+    const logoCentro = await carregarImagem('simbolo.png');       // Apenas o ícone para o meio
 
     status.textContent = "Iniciando geração...";
 
     async function processarBloco(inicio) {
         const tamanhoBloco = 20; 
         const fim = Math.min(inicio + tamanhoBloco, qtd);
-
         for (let i = inicio; i <= fim; i++) {
-            // Nova página a cada 4 cartelas
             if (i > 1 && (i - 1) % 4 === 0) doc.addPage();
-            
             const dados = gerarNumerosCartelaFixa(i);
-            desenharCartelaNoPDF(doc, i, dados, (i - 1) % 4, logoCompleta, simboloCentro);
+            // Passando a nova logo como parâmetro adicional
+            desenharCartelaNoPDF(doc, i, dados, (i - 1) % 4, logoTopo, logoCentro, logoParceiro);
         }
-
         status.textContent = `Gerando: ${fim} de ${qtd}...`;
-
-        if (fim < qtd) {
-            setTimeout(() => processarBloco(fim + 1), 10);
-        } else {
-            doc.save(`bingo-casa-de-negocios.pdf`);
-            status.textContent = "PDF Gerado com sucesso!";
-        }
+        if (fim < qtd) { setTimeout(() => processarBloco(fim + 1), 10); } 
+        else { doc.save(`bingo-casa-de-negocios.pdf`); status.textContent = "PDF Gerado com sucesso!"; }
     }
-
     processarBloco(1);
 }
 
-function desenharCartelaNoPDF(doc, id, dados, indexPagina, logoTopo, logoCentro) {
+function desenharCartelaNoPDF(doc, id, dados, indexPagina, logoTopo, logoCentro, logoParceiro) {
     const largura = 90, altura = 110, margemX = 15, margemY = 15;
     const colPDF = indexPagina % 2, linPDF = Math.floor(indexPagina / 2);
-    const x = margemX + (colPDF * (largura + 10));
-    const y = margemY + (linPDF * (altura + 15));
+    const x = margemX + (colPDF * (largura + 10)), y = margemY + (linPDF * (altura + 15));
+    
+    // 1. Desenha a Logo da Casa de Negócios (Reduzida para 25mm de largura)
+    if (logoTopo) {
+        try { doc.addImage(logoTopo, 'PNG', x, y, 25, 0); } catch(e){}
+    }
+    
+    // 2. Desenha a Logo da MedSênior (Ao lado, com um espaço de 3mm após a primeira)
+    if (logoParceiro) {
+        try { doc.addImage(logoParceiro, 'PNG', x + 28, y, 28, 0); } catch(e){}
+    }
+    
+    doc.setFontSize(9); doc.setTextColor(100);
+    doc.text(`Nº ${String(id).padStart(3, '0')}`, x + largura - 5, y + 5, { align: 'right' });
+    
+    const gridY = y + 15, tam = 16, letras = ['B', 'I', 'N', 'G', 'O'];
+    letras.forEach((l, i) => {
+        doc.setFillColor(...((l === 'I' || l === 'G') ? COR_AMARELO : COR_AZUL));
+        doc.roundedRect(x + (i * tam), gridY, tam, tam, 3, 3, 'F');
+        doc.setTextColor((l === 'I' || l === 'G') ? 0 : 255); doc.setFontSize(20);
+        doc.text(l, x + (i * tam) + 8, gridY + 11, { align: 'center' });
+        for(let r=0; r<5; r++) {
+            const cX = x + (i * tam), cY = gridY + tam + (r * tam);
+            doc.setDrawColor(200); doc.roundedRect(cX, cY, tam, tam, 1.5, 1.5, 'S');
+            if (i === 2 && r === 2) {
+                if (logoCentro) try { doc.addImage(logoCentro, 'PNG', cX + 3, cY + 3, tam - 6, tam - 6); } catch(e){}
+                else { doc.setFontSize(7); doc.text("FREE", cX + 8, cY + 9, { align: 'center' }); }
+            } else {
+                doc.setFontSize(16); doc.setTextColor(50);
+                doc.text(String(dados[l.toLowerCase()][r]), cX + 8, cY + 11, { align: 'center' });
+            }
+        }
+    });
+}
 
     // Logo no Topo
     if (logoTopo) {
