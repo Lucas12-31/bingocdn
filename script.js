@@ -7,7 +7,6 @@ let jogoAtivo = false;
 let qtdCartelasJogando = 0;
 let statusGanhadores = {}; 
 
-// --- CARREGAMENTO DE IMAGENS ---
 function carregarImagem(caminho) {
     return new Promise((resolve) => {
         const img = new Image();
@@ -19,17 +18,12 @@ function carregarImagem(caminho) {
         img.onload = function () {
             clearTimeout(timeout);
             const canvas = document.createElement('canvas');
-            canvas.width = this.width; 
-            canvas.height = this.height;
+            canvas.width = this.width; canvas.height = this.height;
             const ctx = canvas.getContext('2d');
             ctx.drawImage(this, 0, 0);
             resolve(canvas.toDataURL('image/png')); 
         };
-        img.onerror = () => { 
-            clearTimeout(timeout); 
-            console.error(`Erro ao carregar o arquivo: ${caminho}`);
-            resolve(null); 
-        };
+        img.onerror = () => { clearTimeout(timeout); resolve(null); };
         img.src = caminho;
     });
 }
@@ -65,12 +59,11 @@ async function gerarPDFCartelas() {
     
     status.textContent = "Carregando logos...";
     
-    // ALTERAÇÃO AQUI: Nome atualizado para Med.png refletindo a sua mudança
     const logoTopo = await carregarImagem('logo.png');           
     const logoParceiro = await carregarImagem('Med.png'); 
     const logoCentro = await carregarImagem('simbolo.png');       
 
-    status.textContent = "Iniciando geração...";
+    status.textContent = "Iniciando generation...";
 
     async function processarBloco(inicio) {
         const tamanhoBloco = 20; 
@@ -92,15 +85,8 @@ function desenharCartelaNoPDF(doc, id, dados, indexPagina, logoTopo, logoCentro,
     const colPDF = indexPagina % 2, linPDF = Math.floor(indexPagina / 2);
     const x = margemX + (colPDF * (largura + 10)), y = margemY + (linPDF * (altura + 15));
     
-    // 1. Desenha a Logo da Casa de Negócios
-    if (logoTopo) {
-        try { doc.addImage(logoTopo, 'PNG', x, y, 25, 0); } catch(e){}
-    }
-    
-    // 2. Desenha a Logo da MedSênior ao lado
-    if (logoParceiro) {
-        try { doc.addImage(logoParceiro, 'PNG', x + 28, y, 28, 0); } catch(e){}
-    }
+    if (logoTopo) { try { doc.addImage(logoTopo, 'PNG', x, y, 25, 0); } catch(e){} }
+    if (logoParceiro) { try { doc.addImage(logoParceiro, 'PNG', x + 28, y, 28, 0); } catch(e){} }
     
     doc.setFontSize(9); doc.setTextColor(100);
     doc.text(`Nº ${String(id).padStart(3, '0')}`, x + largura - 5, y + 5, { align: 'right' });
@@ -166,11 +152,26 @@ function sortearNumero() {
             statusGanhadores[v.id].push(v.motivo); 
         });
         const idsTexto = novosVencedores.map(v => `nº ${v.id} (${v.motivo})`).join(', ');
+        
+        // Atualiza a faixa cinza de trás (mantendo excelente como você pediu)
         status.innerHTML = `${textoStatus} <br> <span style="color: var(--azul-escuro);">🎉 BINGO! Cartela(s) ${idsTexto}</span>`;
-        setTimeout(() => { alert(`🎉 BINGO!\nNúmero Sorteado: ${num}\nCartela(s): ${idsTexto}`); }, 100);
+        
+        // DISPARA A NOVA JANELA MODAL EM VEZ DO ALERT
+        abrirModalBingo(num, idsTexto);
     } else {
         status.innerHTML = `${textoStatus} (Total: ${numerosSorteados.length})`;
     }
+}
+
+// FUNÇÕES DE CONTROLE DA JANELA POP-UP DE BINGO
+function abrirModalBingo(numero, cartelas) {
+    document.getElementById('modal-numero-vencedor').textContent = numero;
+    document.getElementById('modal-cartelas-vencedoras').innerHTML = `Cartela(s): <br> <strong>${cartelas}</strong>`;
+    document.getElementById('modal-bingo').classList.remove('escondida');
+}
+
+function fecharModalBingo() {
+    document.getElementById('modal-bingo').classList.add('escondida');
 }
 
 function verificarBingo() {
