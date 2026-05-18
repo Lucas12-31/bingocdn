@@ -177,3 +177,27 @@ function verificarBingo() {
     const querLinhaColuna = document.getElementById('check-linha-coluna').checked;
     const querCheia = document.getElementById('check-cheia').checked;
     let vencedores = [];
+    for (let id = 1; id <= qtdCartelasJogando; id++) {
+        if (statusGanhadores[id] && statusGanhadores[id].includes("FECHOU A CARTELA")) continue;
+        const dados = gerarNumerosCartelaFixa(id);
+        const letras = ['b', 'i', 'n', 'g', 'o'];
+        let matriz = [];
+        for (let r = 0; r < 5; r++) {
+            matriz[r] = [];
+            for (let c = 0; c < 5; c++) matriz[r][c] = (r === 2 && c === 2) ? true : numerosSorteados.includes(dados[letras[c]][r]);
+        }
+        if (querLinhaColuna && (!statusGanhadores[id] || !statusGanhadores[id].includes("fez LINHA/COLUNA"))) {
+            let ganhou = false;
+            for (let r = 0; r < 5; r++) if (matriz[r].every(v => v)) ganhou = true;
+            for (let c = 0; c < 5; c++) if ([0,1,2,3,4].every(r => matriz[r][c])) ganhou = true;
+            if (ganhou) vencedores.push({ id, motivo: "fez LINHA/COLUNA" });
+        }
+        if (querCheia) {
+            let total = 0; matriz.forEach(l => l.forEach(v => { if(v) total++; }));
+            if (total === 25) vencedores.push({ id, motivo: "FECHOU A CARTELA" });
+        }
+    }
+    return vencedores;
+}
+
+function reiniciarJogo() { if (confirm("Deseja realmente reiniciar o sorteio atual?")) iniciarJogoCompleto(); }
