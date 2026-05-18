@@ -1,3 +1,5 @@
+// --- script.js (Versão Definitiva Unificada - Logo Conjunta) ---
+
 const COR_AZUL = [0, 45, 83];
 const COR_AMARELO = [243, 171, 0];
 
@@ -7,6 +9,7 @@ let jogoAtivo = false;
 let qtdCartelasJogando = 0;
 let statusGanhadores = {}; 
 
+// --- 1. CARREGAMENTO DE IMAGENS BIINDADO ---
 function carregarImagem(caminho) {
     return new Promise((resolve) => {
         const img = new Image();
@@ -18,16 +21,22 @@ function carregarImagem(caminho) {
         img.onload = function () {
             clearTimeout(timeout);
             const canvas = document.createElement('canvas');
-            canvas.width = this.width; canvas.height = this.height;
+            canvas.width = this.width; 
+            canvas.height = this.height;
             const ctx = canvas.getContext('2d');
             ctx.drawImage(this, 0, 0);
             resolve(canvas.toDataURL('image/png')); 
         };
-        img.onerror = () => { clearTimeout(timeout); resolve(null); };
+        img.onerror = () => { 
+            clearTimeout(timeout); 
+            console.error(`Erro ao carregar o arquivo: ${caminho}`);
+            resolve(null); 
+        };
         img.src = caminho;
     });
 }
 
+// --- 2. GERADORES MATEMÁTICOS DE CARTELA ---
 function seededRandom(seed) {
     const x = Math.sin(seed++) * 10000;
     return x - Math.floor(x);
@@ -49,6 +58,7 @@ function gerarNumerosCartelaFixa(idCartela) {
     return cartela;
 }
 
+// --- 3. GERAÇÃO DO PDF EM BLOCOS ---
 async function gerarPDFCartelas() {
     const qtd = parseInt(document.getElementById('qtd-imprimir').value);
     if (!qtd || qtd <= 0) return alert("Digite a quantidade.");
@@ -59,8 +69,8 @@ async function gerarPDFCartelas() {
     
     status.textContent = "Carregando logos...";
     
+    // Carrega apenas a nova logo conjunta e o símbolo do centro
     const logoTopo = await carregarImagem('logo.png');           
-    const logoParceiro = await carregarImagem('Med.png'); 
     const logoCentro = await carregarImagem('simbolo.png');       
 
     status.textContent = "Iniciando geração...";
@@ -71,7 +81,7 @@ async function gerarPDFCartelas() {
         for (let i = inicio; i <= fim; i++) {
             if (i > 1 && (i - 1) % 4 === 0) doc.addPage();
             const dados = gerarNumerosCartelaFixa(i);
-            desenharCartelaNoPDF(doc, i, dados, (i - 1) % 4, logoTopo, logoCentro, logoParceiro);
+            desenharCartelaNoPDF(doc, i, dados, (i - 1) % 4, logoTopo, logoCentro);
         }
         status.textContent = `Gerando: ${fim} de ${qtd}...`;
         if (fim < qtd) { setTimeout(() => processarBloco(fim + 1), 10); } 
@@ -80,27 +90,18 @@ async function gerarPDFCartelas() {
     processarBloco(1);
 }
 
-function desenharCartelaNoPDF(doc, id, dados, indexPagina, logoTopo, logoCentro, logoParceiro) {
+function desenharCartelaNoPDF(doc, id, dados, indexPagina, logoTopo, logoCentro) {
     const largura = 90, altura = 110, margemX = 15, margemY = 15;
     const colPDF = indexPagina % 2, linPDF = Math.floor(indexPagina / 2);
     const x = margemX + (colPDF * (largura + 10)), y = margemY + (linPDF * (altura + 15));
     
-    // Altura controlada para as duas logos
-    const altCN = 5.2; 
-    const altMed = 5.2; 
-    
-    // Alinhamento na base: as duas terminam exatamente na mesma linha vertical (y + 6.5)
+    // Renderiza a nova logo conjunta com 55mm de largura total
     if (logoTopo) {
-        try { doc.addImage(logoTopo, 'PNG', x, y + 6.5 - altCN, 25, altCN); } catch(e){}
+        try { doc.addImage(logoTopo, 'PNG', x, y + 1, 55, 0); } catch(e){}
     }
     
-    if (logoParceiro) {
-        try { doc.addImage(logoParceiro, 'PNG', x + 28, y + 6.5 - altMed, 23, altMed); } catch(e){}
-    }
-    
-    // Número da cartela alinhado sutilmente no canto superior direito
     doc.setFontSize(9); doc.setTextColor(100);
-    doc.text(`Nº ${String(id).padStart(3, '0')}`, x + largura - 2, y + 4.5, { align: 'right' });
+    doc.text(`Nº ${String(id).padStart(3, '0')}`, x + largura - 2, y + 5, { align: 'right' });
     
     const gridY = y + 15, tam = 16, letras = ['B', 'I', 'N', 'G', 'O'];
     letras.forEach((l, i) => {
@@ -122,6 +123,7 @@ function desenharCartelaNoPDF(doc, id, dados, indexPagina, logoTopo, logoCentro,
     });
 }
 
+// --- 4. CONTROLADORES DA LÓGICA DO JOGO ---
 function iniciarJogoCompleto() {
     qtdCartelasJogando = parseInt(document.getElementById('qtd-jogando').value);
     if (!qtdCartelasJogando) return alert("Digite a quantidade.");
@@ -172,6 +174,7 @@ function sortearNumero() {
     }
 }
 
+// --- 5. POP-UP MODAL CUSTOMIZADO DE VITÓRIA ---
 function abrirModalBingo(numero, cartelas) {
     document.getElementById('modal-numero-vencedor').textContent = numero;
     document.getElementById('modal-cartelas-vencedoras').innerHTML = `Cartela(s): <br> <strong>${cartelas}</strong>`;
