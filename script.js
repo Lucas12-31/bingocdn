@@ -204,24 +204,30 @@ function desenharCartelaNoPDF(doc, id, dados, indexPagina, logoTopo, logoCentro,
     const colPDF = indexPagina % 2, linPDF = Math.floor(indexPagina / 2);
     const x = margemX + (colPDF * (largura + 10)), y = margemY + (linPDF * (altura + 15));
     
-    // 1. Renderiza a logo conjunta deslocada sutilmente para o topo do bloco
+    // CORREÇÃO: Fixamos a altura em 8mm em vez de deixar automática (0)
+    // Isso impede que a imagem se estenda para baixo e sobreponha os textos.
+    const larguraLogo = 55;
+    const altLogo = 8;
+    
     if (logoTopo) {
-        try { doc.addImage(logoTopo, 'PNG', x, y + 0.5, 55, 0); } catch(e){}
+        try { 
+            // Posiciona a logo bem no topo do quadrante (y + 1) com dimensões controladas
+            doc.addImage(logoTopo, 'PNG', x, y + 1, larguraLogo, altLogo); 
+        } catch(e){}
     }
     
-    // 2. Afastamos o Nome do Corretor e o Número da Cartela para baixo (y + 11.5) 
-    // evitando qualquer tipo de sobreposição com a imagem acima
+    // O nome do corretor e o número da cartela ficam em y + 12.5, garantindo respiro total
     if (nomeDono) {
         doc.setFontSize(8); doc.setFont("Helvetica", "bold"); doc.setTextColor(0, 45, 83);
-        doc.text(`Nome: ${nomeDono.toUpperCase()}`, x, y + 11.5);
-        desenhoLinhaSuave(doc, x, y + 12.5, x + largura, y + 12.5);
+        doc.text(`Nome: ${nomeDono.toUpperCase()}`, x, y + 12.5);
+        desenhoLinhaSuave(doc, x, y + 13.5, x + largura, y + 13.5);
     }
     
     doc.setFont("Helvetica", "normal");
     doc.setFontSize(9); doc.setTextColor(100);
-    doc.text(`Nº ${String(id).padStart(3, '0')}`, x + largura - 2, y + 11.5, { align: 'right' });
+    doc.text(`Nº ${String(id).padStart(3, '0')}`, x + largura - 2, y + 12.5, { align: 'right' });
     
-    // O grid principal do BINGO começa exatamente em y + 15, encaixando perfeitamente
+    // O grid do BINGO começa em y + 15, logo abaixo da linha divisória
     const gridY = y + 15, tam = 16, letras = ['B', 'I', 'N', 'G', 'O'];
     letras.forEach((l, i) => {
         doc.setFillColor(...((l === 'I' || l === 'G') ? COR_AMARELO : COR_AZUL));
