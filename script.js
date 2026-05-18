@@ -63,7 +63,7 @@ async function gerarPDFCartelas() {
     const logoParceiro = await carregarImagem('Med.png'); 
     const logoCentro = await carregarImagem('simbolo.png');       
 
-    status.textContent = "Iniciando generation...";
+    status.textContent = "Iniciando geração...";
 
     async function processarBloco(inicio) {
         const tamanhoBloco = 20; 
@@ -119,7 +119,7 @@ function iniciarJogoCompleto() {
     document.getElementById('numero-sorteado-display').textContent = '--';
     const letras = ['b','i','n','g','o'];
     letras.forEach(l => {
-        const container = document.getElementById(`cells-${l}`); container.innerHTML = '';
+        const container = document.getElementById('cells-' + l); container.innerHTML = '';
         const min = (l==='b'?1:l==='i'?16:l==='n'?31:l==='g'?46:61);
         for(let i=min; i<min+15; i++){
             const d = document.createElement('div'); d.className = 'cell'; d.id = `num-${i}`; d.textContent = i;
@@ -153,17 +153,14 @@ function sortearNumero() {
         });
         const idsTexto = novosVencedores.map(v => `nº ${v.id} (${v.motivo})`).join(', ');
         
-        // Atualiza a faixa cinza de trás (mantendo excelente como você pediu)
         status.innerHTML = `${textoStatus} <br> <span style="color: var(--azul-escuro);">🎉 BINGO! Cartela(s) ${idsTexto}</span>`;
         
-        // DISPARA A NOVA JANELA MODAL EM VEZ DO ALERT
         abrirModalBingo(num, idsTexto);
     } else {
         status.innerHTML = `${textoStatus} (Total: ${numerosSorteados.length})`;
     }
 }
 
-// FUNÇÕES DE CONTROLE DA JANELA POP-UP DE BINGO
 function abrirModalBingo(numero, cartelas) {
     document.getElementById('modal-numero-vencedor').textContent = numero;
     document.getElementById('modal-cartelas-vencedoras').innerHTML = `Cartela(s): <br> <strong>${cartelas}</strong>`;
