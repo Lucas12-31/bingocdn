@@ -41,7 +41,6 @@ body, html {
     overflow-y: auto;
 }
 
-/* --- TOPO --- */
 .barra-topo {
     display: flex; justify-content: space-between; align-items: center;
     border-bottom: 2px solid var(--cinza-borda);
@@ -57,16 +56,16 @@ body, html {
     border-radius: 25px; box-shadow: inset 0 2px 5px rgba(0,0,0,0.05);
 }
 
-/* --- STATUS (BARRA DE AVISO) --- */
 .status-bingo {
     text-align: center; font-size: 22px; padding: 15px;
     background: #f8f9fa; border-radius: 15px; margin: 15px 0;
     font-weight: 600; border: 1px solid #eee;
+    line-height: 1.4;
 }
 
 .status-bingo strong { font-size: 45px; color: var(--azul-escuro); margin-left: 10px; }
+.status-bingo span { font-weight: bold; display: inline-block; margin-top: 5px; }
 
-/* --- BOTÕES E INPUTS --- */
 .container-principal button {
     padding: 10px 20px; cursor: pointer; border: none;
     border-radius: 10px; font-weight: 600; font-size: 16px;
@@ -74,41 +73,112 @@ body, html {
 }
 
 #btn-gerar-pdf { background-color: var(--amarelo) !important; color: var(--azul-escuro) !important; }
+#btn-gerar-pdf:hover { background-color: #d19300 !important; transform: translateY(-1px); }
 #btn-iniciar-jogo, #btn-sortear { background-color: var(--azul-escuro) !important; color: white !important; }
+#btn-iniciar-jogo:hover, #btn-sortear:hover { background-color: #00457a !important; transform: translateY(-1px); }
 #btn-reiniciar { background-color: #e2e6ea !important; color: var(--texto-suave) !important; }
+#btn-reiniciar:hover { background-color: #ced4da !important; }
 
 input[type="number"] {
     width: 80px; padding: 10px; border: 1px solid var(--cinza-borda);
     border-radius: 10px; font-size: 16px;
 }
 
-.controles-cartela, .controles-jogo { display: flex; align-items: center; gap: 15px; margin-bottom: 15px; }
+.controles-cartela, .controles-jogo, .controles-regras { display: flex; align-items: center; gap: 15px; margin-bottom: 15px; }
 
-/* --- TABULEIRO --- */
 .bingo-board { display: grid; grid-template-columns: repeat(5, 1fr); gap: 15px; }
-
-.header-cell {
-    font-size: 35px; font-weight: 900; color: white;
-    padding: 10px 0; border-radius: 15px; text-align: center;
-}
-
+.header-cell { font-size: 35px; font-weight: 900; color: white; padding: 10px 0; border-radius: 15px; text-align: center; }
 .col-b .header-cell, .col-n .header-cell, .col-o .header-cell { background-color: var(--azul-escuro); }
 .col-i .header-cell, .col-g .header-cell { background-color: var(--amarelo); color: var(--azul-escuro); }
-
 .number-cells { display: grid; grid-template-columns: repeat(2, 55px); gap: 10px; justify-content: center; margin-top: 15px; }
 
 .cell {
     width: 55px; height: 55px; border-radius: 50%;
     background-color: #fff; border: 1px solid var(--cinza-borda);
     display: flex; justify-content: center; align-items: center;
-    font-size: 22px; font-weight: bold; color: #ccc;
+    font-size: 22px; font-weight: bold; color: #ccc; transition: all 0.3s;
 }
 
 .cell.drawn { transform: scale(1.15); box-shadow: 0 5px 15px rgba(0,0,0,0.2); }
-.col-b .cell.drawn, .col-n .cell.drawn, .col-o .cell.drawn { background: var(--amarelo); color: var(--azul-escuro); }
-.col-i .cell.drawn, .col-g .cell.drawn { background: var(--azul-escuro); color: var(--amarelo); }
+.col-b .cell.drawn, .col-n .cell.drawn, .col-o .cell.drawn { background: var(--amarelo); color: var(--azul-escuro); border-color: #d19300; }
+.col-i .cell.drawn, .col-g .cell.drawn { background: var(--azul-escuro); color: var(--amarelo); border-color: #001a30; }
 
 .escondida { display: none; }
 .botoes-sorteio { text-align: center; margin-top: 10px; margin-bottom: 20px; }
-
 @media (max-width: 1800px) { .lateral { display: none; } }
+
+/* --- NOVOS ESTILOS DA JANELA MODAL DE BINGO --- */
+.modal-overlay {
+    position: fixed;
+    top: 0; left: 0;
+    width: 100vw; height: 100vh;
+    background-color: rgba(0, 0, 0, 0.75); /* Fundo escurecido */
+    display: flex; align-items: center; justify-content: center;
+    z-index: 9999;
+    animation: fadeIn 0.3s ease;
+}
+
+.modal-content {
+    background: var(--branco);
+    width: 600px;
+    border-radius: 25px;
+    box-shadow: 0 15px 40px rgba(0,0,0,0.3);
+    padding: 35px;
+    text-align: center;
+    border: 3px solid var(--amarelo);
+    transform: scale(1);
+    animation: scaleUp 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.modal-header {
+    font-size: 45px;
+    font-weight: 900;
+    color: var(--azul-escuro);
+    margin-bottom: 15px;
+    letter-spacing: 2px;
+}
+
+.modal-label-num {
+    font-size: 16px;
+    color: var(--texto-suave);
+    text-transform: uppercase;
+    font-weight: bold;
+    margin-bottom: 5px;
+}
+
+.modal-num-bola {
+    width: 120px; height: 120px;
+    background: var(--amarelo);
+    color: var(--azul-escuro);
+    font-size: 65px;
+    font-weight: bold;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    margin: 10px auto 25px auto;
+    box-shadow: 0 8px 20px rgba(243, 171, 0, 0.4);
+}
+
+.modal-cards-list {
+    font-size: 26px;
+    color: #2c3e50;
+    font-weight: bold;
+    background: #f8f9fa;
+    padding: 15px;
+    border-radius: 12px;
+    border: 1px dashed var(--cinza-borda);
+}
+
+.modal-footer { margin-top: 30px; }
+#btn-fechar-modal {
+    background-color: var(--azul-escuro);
+    color: white;
+    font-size: 18px;
+    font-weight: bold;
+    padding: 12px 35px;
+    border-radius: 12px;
+    box-shadow: 0 4px 10px rgba(0, 45, 83, 0.2);
+}
+#btn-fechar-modal:hover { background-color: #00457a; transform: translateY(-2px); }
+
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+@keyframes scaleUp { from { transform: scale(0.8); } to { transform: scale(1); } }
