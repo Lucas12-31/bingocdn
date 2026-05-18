@@ -103,16 +103,18 @@ input[type="number"] {
 .col-b .cell.drawn, .col-n .cell.drawn, .col-o .cell.drawn { background: var(--amarelo); color: var(--azul-escuro); border-color: #d19300; }
 .col-i .cell.drawn, .col-g .cell.drawn { background: var(--azul-escuro); color: var(--amarelo); border-color: #001a30; }
 
-.escondida { display: none; }
+/* CORREÇÃO AQUI: Força o display none a ignorar qualquer flexbox ativo quando a classe for chamada */
+.escondida { display: none !important; }
+
 .botoes-sorteio { text-align: center; margin-top: 10px; margin-bottom: 20px; }
 @media (max-width: 1800px) { .lateral { display: none; } }
 
-/* --- NOVOS ESTILOS DA JANELA MODAL DE BINGO --- */
+/* --- ESTILOS DA MODAL --- */
 .modal-overlay {
     position: fixed;
     top: 0; left: 0;
     width: 100vw; height: 100vh;
-    background-color: rgba(0, 0, 0, 0.75); /* Fundo escurecido */
+    background-color: rgba(0, 0, 0, 0.75);
     display: flex; align-items: center; justify-content: center;
     z-index: 9999;
     animation: fadeIn 0.3s ease;
