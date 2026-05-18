@@ -9,12 +9,10 @@
 </head>
 <body>
     <div class="container-telao">
-        <!-- Lateral Esquerda -->
         <aside class="lateral">
             <img src="simbolo.png" class="logo-lateral" alt="Símbolo">
         </aside>
 
-        <!-- Centro (Sorteador) -->
         <div class="container-principal">
             <header class="barra-topo">
                 <div class="logo-container">
@@ -30,12 +28,12 @@
                 <h2>Gestão de Cartelas (PDF e Validação)</h2>
                 <div class="controles-cartela">
                     <label>Qtd. Cartelas para Imprimir:</label>
-                    <input type="number" id="qtd-imprimir" value="20" min="1" max="500">
+                    <input type="number" id="qtd-imprimir" value="20" min="1" max="640">
                     <button id="btn-gerar-pdf" onclick="gerarPDFCartelas()">Gerar PDF para Impressão</button>
                 </div>
                 <div class="controles-jogo">
                     <label>Jogar com cartelas de #1 até:</label>
-                    <input type="number" id="qtd-jogando" value="20" min="1" max="500">
+                    <input type="number" id="qtd-jogando" value="20" min="1" max="640">
                     <button id="btn-iniciar-jogo" onclick="iniciarJogoCompleto()">Iniciar Sorteio</button>
                 </div>
                 <div class="controles-regras">
@@ -62,11 +60,25 @@
             </section>
         </div>
 
-        <!-- Lateral Direita -->
         <aside class="lateral">
             <img src="simbolo.png" class="logo-lateral" alt="Símbolo">
         </aside>
     </div>
+
+    <div id="modal-bingo" class="modal-overlay escondida">
+        <div class="modal-content">
+            <div class="modal-header">🎉 BINGO! 🎉</div>
+            <div class="modal-body">
+                <p class="modal-label-num">Número Sorteado</p>
+                <div id="modal-numero-vencedor" class="modal-num-bola">--</div>
+                <div id="modal-cartelas-vencedoras" class="modal-cards-list">Cartela(s): --</div>
+            </div>
+            <div class="modal-footer">
+                <button id="btn-fechar-modal" onclick="fecharModalBingo()">Continuar Sorteio</button>
+            </div>
+        </div>
+    </div>
+
     <script src="script.js"></script>
 </body>
 </html>
