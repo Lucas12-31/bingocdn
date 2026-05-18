@@ -204,21 +204,24 @@ function desenharCartelaNoPDF(doc, id, dados, indexPagina, logoTopo, logoCentro,
     const colPDF = indexPagina % 2, linPDF = Math.floor(indexPagina / 2);
     const x = margemX + (colPDF * (largura + 10)), y = margemY + (linPDF * (altura + 15));
     
+    // 1. Renderiza a logo conjunta deslocada sutilmente para o topo do bloco
     if (logoTopo) {
-        try { doc.addImage(logoTopo, 'PNG', x, y + 1, 55, 0); } catch(e){}
+        try { doc.addImage(logoTopo, 'PNG', x, y + 0.5, 55, 0); } catch(e){}
     }
     
-    // EXIBIÇÃO DO NOME DO CORRETOR NO PDF (Se houver)
+    // 2. Afastamos o Nome do Corretor e o Número da Cartela para baixo (y + 11.5) 
+    // evitando qualquer tipo de sobreposição com a imagem acima
     if (nomeDono) {
         doc.setFontSize(8); doc.setFont("Helvetica", "bold"); doc.setTextColor(0, 45, 83);
-        doc.text(`Corretor: ${nomeDono.toUpperCase()}`, x, y + 12);
-        desenhoLinhaSuave(doc, x, y + 13, x + largura, y + 13);
+        doc.text(`Nome: ${nomeDono.toUpperCase()}`, x, y + 11.5);
+        desenhoLinhaSuave(doc, x, y + 12.5, x + largura, y + 12.5);
     }
     
     doc.setFont("Helvetica", "normal");
     doc.setFontSize(9); doc.setTextColor(100);
-    doc.text(`Nº ${String(id).padStart(3, '0')}`, x + largura - 2, y + 5, { align: 'right' });
+    doc.text(`Nº ${String(id).padStart(3, '0')}`, x + largura - 2, y + 11.5, { align: 'right' });
     
+    // O grid principal do BINGO começa exatamente em y + 15, encaixando perfeitamente
     const gridY = y + 15, tam = 16, letras = ['B', 'I', 'N', 'G', 'O'];
     letras.forEach((l, i) => {
         doc.setFillColor(...((l === 'I' || l === 'G') ? COR_AMARELO : COR_AZUL));
