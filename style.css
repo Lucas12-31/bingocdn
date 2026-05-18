@@ -103,13 +103,11 @@ input[type="number"] {
 .col-b .cell.drawn, .col-n .cell.drawn, .col-o .cell.drawn { background: var(--amarelo); color: var(--azul-escuro); border-color: #d19300; }
 .col-i .cell.drawn, .col-g .cell.drawn { background: var(--azul-escuro); color: var(--amarelo); border-color: #001a30; }
 
-/* CORREÇÃO AQUI: Força o display none a ignorar qualquer flexbox ativo quando a classe for chamada */
 .escondida { display: none !important; }
-
 .botoes-sorteio { text-align: center; margin-top: 10px; margin-bottom: 20px; }
 @media (max-width: 1800px) { .lateral { display: none; } }
 
-/* --- ESTILOS DA MODAL --- */
+/* --- ESTILOS DAS JANELAS MODAIS --- */
 .modal-overlay {
     position: fixed;
     top: 0; left: 0;
@@ -140,46 +138,15 @@ input[type="number"] {
     letter-spacing: 2px;
 }
 
-.modal-label-num {
-    font-size: 16px;
-    color: var(--texto-suave);
-    text-transform: uppercase;
-    font-weight: bold;
-    margin-bottom: 5px;
-}
-
+.modal-label-num { font-size: 16px; color: var(--texto-suave); text-transform: uppercase; font-weight: bold; margin-bottom: 5px; }
 .modal-num-bola {
-    width: 120px; height: 120px;
-    background: var(--amarelo);
-    color: var(--azul-escuro);
-    font-size: 65px;
-    font-weight: bold;
-    border-radius: 50%;
-    display: flex; align-items: center; justify-content: center;
-    margin: 10px auto 25px auto;
-    box-shadow: 0 8px 20px rgba(243, 171, 0, 0.4);
+    width: 120px; height: 120px; background: var(--amarelo); color: var(--azul-escuro); font-size: 65px; font-weight: bold;
+    border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 10px auto 25px auto; box-shadow: 0 8px 20px rgba(243, 171, 0, 0.4);
 }
 
-.modal-cards-list {
-    font-size: 26px;
-    color: #2c3e50;
-    font-weight: bold;
-    background: #f8f9fa;
-    padding: 15px;
-    border-radius: 12px;
-    border: 1px dashed var(--cinza-borda);
-}
-
+.modal-cards-list { font-size: 26px; color: #2c3e50; font-weight: bold; background: #f8f9fa; padding: 15px; border-radius: 12px; border: 1px dashed var(--cinza-borda); }
 .modal-footer { margin-top: 30px; }
-#btn-fechar-modal {
-    background-color: var(--azul-escuro);
-    color: white;
-    font-size: 18px;
-    font-weight: bold;
-    padding: 12px 35px;
-    border-radius: 12px;
-    box-shadow: 0 4px 10px rgba(0, 45, 83, 0.2);
-}
+#btn-fechar-modal { background-color: var(--azul-escuro); color: white; font-size: 18px; font-weight: bold; padding: 12px 35px; border-radius: 12px; box-shadow: 0 4px 10px rgba(0, 45, 83, 0.2); }
 #btn-fechar-modal:hover { background-color: #00457a; transform: translateY(-2px); }
 
 @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
