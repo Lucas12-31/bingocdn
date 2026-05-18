@@ -85,11 +85,23 @@ function desenharCartelaNoPDF(doc, id, dados, indexPagina, logoTopo, logoCentro,
     const colPDF = indexPagina % 2, linPDF = Math.floor(indexPagina / 2);
     const x = margemX + (colPDF * (largura + 10)), y = margemY + (linPDF * (altura + 15));
     
-    if (logoTopo) { try { doc.addImage(logoTopo, 'PNG', x, y, 25, 0); } catch(e){} }
-    if (logoParceiro) { try { doc.addImage(logoParceiro, 'PNG', x + 28, y, 28, 0); } catch(e){} }
+    // Altura fixa de referência para alinhar os centros das duas logos verticalmente
+    const alturaLogoCN = 6; // Altura estimada para a logo Casa de Negócios com 25mm de largura
+    const alturaLogoMed = 6; // Força uma altura proporcional idêntica para a MedSênior
     
+    // 1. Desenha a Logo da Casa de Negócios (Largura: 25mm, Altura calculada automaticamente pelo jsPDF)
+    if (logoTopo) {
+        try { doc.addImage(logoTopo, 'PNG', x, y + 1, 25, 0); } catch(e){}
+    }
+    
+    // 2. Desenha a Logo da MedSênior (Alinhada perfeitamente ao lado, com dimensões fixas controladas)
+    if (logoParceiro) {
+        try { doc.addImage(logoParceiro, 'PNG', x + 28, y + 1, 23, alturaLogoMed); } catch(e){}
+    }
+    
+    // Número de identificação da cartela deslocado levemente para não encostar na logo parceira
     doc.setFontSize(9); doc.setTextColor(100);
-    doc.text(`Nº ${String(id).padStart(3, '0')}`, x + largura - 5, y + 5, { align: 'right' });
+    doc.text(`Nº ${String(id).padStart(3, '0')}`, x + largura - 2, y + 5, { align: 'right' });
     
     const gridY = y + 15, tam = 16, letras = ['B', 'I', 'N', 'G', 'O'];
     letras.forEach((l, i) => {
