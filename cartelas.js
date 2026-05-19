@@ -1,10 +1,10 @@
-// --- cartelas.js (Focado estritamente na geração e mapeamento de PDFs com proporção nativa) ---
+// --- cartelas.js (Versão Estabilizada com Proporção Nativa e Compressão JPEG) ---
 
 const COR_AZUL = [0, 45, 83];
 const COR_AMARELO = [243, 171, 0];
 let listaCorretores = [];
 
-// Carrega a imagem e retorna suas dimensões originais de forma explícita
+// Carrega a imagem e expõe metadados limpos usando compressão JPEG para evitar travamento
 function carregarImagem(caminho) {
     return new Promise((resolve) => {
         const img = new Image();
@@ -16,10 +16,15 @@ function carregarImagem(caminho) {
             clearTimeout(timeout);
             const canvas = document.createElement('canvas');
             canvas.width = this.width; canvas.height = this.height;
-            canvas.getContext('2d').drawImage(this, 0, 0);
+            const ctx = canvas.getContext('2d');
+            
+            // Pinta fundo branco para evitar problemas com transparências convertidas para JPEG
+            ctx.fillStyle = '#FFFFFF';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            ctx.drawImage(this, 0, 0);
             
             resolve({
-                dataUrl: canvas.toDataURL('image/png'),
+                dataUrl: canvas.toDataURL('image/jpeg', 0.9), // Convertido para JPEG com 90% de qualidade
                 wOriginal: this.width,
                 hOriginal: this.height
             }); 
@@ -139,11 +144,11 @@ function desenharCartelaNoPDF(doc, id, dados, indexPagina, logoTopo, logoCentro,
     const larguraDesejadaLogo = 50; 
     let altLogo = 8; 
     
-    // Tratamento seguro do objeto de imagem para evitar quebras no processamento
+    // Injeção de imagem configurada explicitamente em JPEG para evitar loop de compressão do jsPDF
     if (logoTopo && logoTopo.dataUrl) {
         altLogo = larguraDesejadaLogo * (logoTopo.hOriginal / logoTopo.wOriginal);
         try { 
-            doc.addImage(logoTopo.dataUrl, 'PNG', x + (largura - larguraDesejadaLogo)/2, y + 2, larguraDesejadaLogo, altLogo); 
+            doc.addImage(logoTopo.dataUrl, 'JPEG', x + (largura - larguraDesejadaLogo)/2, y + 2, larguraDesejadaLogo, altLogo); 
         } catch(e){ console.error("Erro ao renderizar logo topo:", e); } 
     }
     
@@ -169,7 +174,7 @@ function desenharCartelaNoPDF(doc, id, dados, indexPagina, logoTopo, logoCentro,
             doc.setDrawColor(200); doc.roundedRect(cX, cY, tam, tam, 1.5, 1.5, 'S');
             if (i === 2 && r === 2) {
                 if (logoCentro && logoCentro.dataUrl) {
-                    try { doc.addImage(logoCentro.dataUrl, 'PNG', cX + 3, cY + 3, tam - 6, tam - 6); } catch(e){}
+                    try { doc.addImage(logoCentro.dataUrl, 'JPEG', cX + 3, cY + 3, tam - 6, tam - 6); } catch(e){}
                 } else { doc.setFontSize(7); doc.text("FREE", cX + 8, cY + 9, { align: 'center' }); }
             } else {
                 doc.setFontSize(16); doc.setTextColor(50); doc.text(String(dados[l.toLowerCase()][r]), cX + 8, cY + 11, { align: 'center' });
