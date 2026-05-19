@@ -159,7 +159,7 @@ function desenharCartelaNoPDF(doc, id, dados, indexPagina, logoTopo, logoCentro,
     
     if (nomeDono) {
         doc.setFontSize(8); doc.setFont("Helvetica", "bold"); doc.setTextColor(0, 45, 83);
-        doc.text(`Corretor: ${nomeDono.toUpperCase()}`, x, topoInformacoesY);
+        doc.text(`Nome: ${nomeDono.toUpperCase()}`, x, topoInformacoesY);
         desenhoLinhaSuave(doc, x, topoInformacoesY + 1.2, x + largura, topoInformacoesY + 1.2);
     }
     
