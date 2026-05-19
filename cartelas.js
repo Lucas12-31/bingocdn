@@ -1,10 +1,10 @@
-// --- cartelas.js (Versão Estabilizada com Proporção Nativa e Compressão JPEG) ---
+// --- cartelas.js (Gerenciador de Impressão de Cartelas) ---
 
 const COR_AZUL = [0, 45, 83];
 const COR_AMARELO = [243, 171, 0];
 let listaCorretores = [];
 
-// Carrega a imagem e expõe metadados limpos usando compressão JPEG para evitar travamento
+// --- 1. PROCESSO DE IMAGENS PARA A BIBLIOTECA PDF ---
 function carregarImagem(caminho) {
     return new Promise((resolve) => {
         const img = new Image();
@@ -18,13 +18,12 @@ function carregarImagem(caminho) {
             canvas.width = this.width; canvas.height = this.height;
             const ctx = canvas.getContext('2d');
             
-            // Pinta fundo branco para evitar problemas com transparências convertidas para JPEG
             ctx.fillStyle = '#FFFFFF';
             ctx.fillRect(0, 0, canvas.width, canvas.height);
             ctx.drawImage(this, 0, 0);
             
             resolve({
-                dataUrl: canvas.toDataURL('image/jpeg', 0.9), // Convertido para JPEG com 90% de qualidade
+                dataUrl: canvas.toDataURL('image/jpeg', 0.9), 
                 wOriginal: this.width,
                 hOriginal: this.height
             }); 
@@ -34,6 +33,7 @@ function carregarImagem(caminho) {
     });
 }
 
+// --- 2. LÓGICA MATEMÁTICA DA CARTELA (Puro JS - Sem dependência da biblioteca) ---
 function seededRandom(seed) {
     const x = Math.sin(seed++) * 10000;
     return x - Math.floor(x);
@@ -55,6 +55,7 @@ function gerarNumerosCartelaFixa(idCartela) {
     return cartela;
 }
 
+// --- 3. CONTROLE DA LISTA DE CORRETORES ---
 function abrirModalDistribuicao() { document.getElementById('modal-distribuicao').classList.remove('escondida'); renderizarTabelaCorretores(); }
 function fecharModalDistribuicao() { document.getElementById('modal-distribuicao').classList.add('escondida'); }
 
@@ -84,6 +85,7 @@ function renderizarTabelaCorretores() {
     document.getElementById('total-cartelas-distribuidas').textContent = `Total de cartelas mapeadas: ${contadorCartela - 1}`;
 }
 
+// --- 4. RELAÇÃO COM A BIBLIOTECA jspdf (Montagem dos arquivos) ---
 async function gerarPDFCartelas() {
     const qtd = parseInt(document.getElementById('qtd-imprimir').value);
     if (!qtd || qtd <= 0) return alert("Digite a quantidade.");
@@ -119,7 +121,7 @@ async function gerarPDFNominativo() {
     
     let mapaNomes = []; let idAtual = 1;
     listaCorretores.forEach(c => { for(let j=0; j < c.qtd; j++) { mapaNomes[idAtual] = c.nome; idAtual++; } });
-    const totalCartelas = idAtual - 1; status.textContent = "Status: Iniciando geração nominal...";
+    const totalCartelas = idAtual - 1; status.textContent = "Status: Iniciando generation nominal...";
     async function processarBlocoNominativo(inicio) {
         const tamanhoBloco = 20; const fim = Math.min(inicio + tamanhoBloco, totalCartelas);
         for (let i = inicio; i <= fim; i++) {
@@ -144,7 +146,6 @@ function desenharCartelaNoPDF(doc, id, dados, indexPagina, logoTopo, logoCentro,
     const larguraDesejadaLogo = 50; 
     let altLogo = 8; 
     
-    // Injeção de imagem configurada explicitamente em JPEG para evitar loop de compressão do jsPDF
     if (logoTopo && logoTopo.dataUrl) {
         altLogo = larguraDesejadaLogo * (logoTopo.hOriginal / logoTopo.wOriginal);
         try { 
