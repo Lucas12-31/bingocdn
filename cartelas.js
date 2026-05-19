@@ -1,21 +1,23 @@
-// --- cartelas.js (Focado estritamente na geração e mapeamento de PDFs) ---
+// --- cartelas.js (Focado estritamente na geração e mapeamento de PDFs com proporção nativa) ---
 
 const COR_AZUL = [0, 45, 83];
 const COR_AMARELO = [243, 171, 0];
 let listaCorretores = [];
 
-// --- CORREÇÃO DA LOGO: Carrega a imagem e também retorna suas dimensões originais ---
+// Carrega a imagem e retorna suas dimensões originais de forma explícita
 function carregarImagem(caminho) {
     return new Promise((resolve) => {
         const img = new Image();
-        const timeout = setTimeout(() => { resolve(null); }, 5000);
+        const timeout = setTimeout(() => { 
+            console.warn(`Tempo limite esgotado para: ${caminho}`);
+            resolve(null); 
+        }, 5000);
         img.onload = function () {
             clearTimeout(timeout);
             const canvas = document.createElement('canvas');
             canvas.width = this.width; canvas.height = this.height;
             canvas.getContext('2d').drawImage(this, 0, 0);
             
-            // Retorna o DataURL juntamente com a largura e altura reais do arquivo
             resolve({
                 dataUrl: canvas.toDataURL('image/png'),
                 wOriginal: this.width,
@@ -27,9 +29,56 @@ function carregarImagem(caminho) {
     });
 }
 
-// --- O restante do seu código (seededRandom, gerarNumerosCartelaFixa, etc.) continua igual ---
+function seededRandom(seed) {
+    const x = Math.sin(seed++) * 10000;
+    return x - Math.floor(x);
+}
 
-// --- Processamento dos blocos ajustado para a nova estrutura de objeto ---
+function gerarNumerosCartelaFixa(idCartela) {
+    const cartela = { b: [], i: [], n: [], g: [], o: [] };
+    let seed = idCartela * 123.45;
+    const intervalos = { b: [1, 15], i: [16, 30], n: [31, 45], g: [46, 60], o: [61, 75] };
+    for (let letra in intervalos) {
+        let min = intervalos[letra][0], max = intervalos[letra][1];
+        let opçoes = Array.from({ length: max - min + 1 }, (_, i) => min + i);
+        for (let j = 0; j < 5; j++) {
+            let index = Math.floor(seededRandom(seed++) * opçoes.length);
+            cartela[letra].push(opçoes.splice(index, 1)[0]);
+        }
+        cartela[letra].sort((a, b) => a - b);
+    }
+    return cartela;
+}
+
+function abrirModalDistribuicao() { document.getElementById('modal-distribuicao').classList.remove('escondida'); renderizarTabelaCorretores(); }
+function fecharModalDistribuicao() { document.getElementById('modal-distribuicao').classList.add('escondida'); }
+
+function adicionarCorretorLista() {
+    const nomeInput = document.getElementById('corretor-nome');
+    const qtdInput = document.getElementById('corretor-qtd');
+    const nome = nomeInput.value.trim();
+    const qtd = parseInt(qtdInput.value);
+    if (!nome) return alert("Por favor, insira o nome.");
+    if (!qtd || qtd <= 0) return alert("Insira uma quantidade válida.");
+    listaCorretores.push({ nome, qtd });
+    nomeInput.value = ''; qtdInput.value = '1';
+    renderizarTabelaCorretores();
+}
+
+function removerCorretorLista(index) { listaCorretores.splice(index, 1); renderizarTabelaCorretores(); }
+
+function renderizarTabelaCorretores() {
+    const corpo = document.getElementById('lista-corretores-corpo'); corpo.innerHTML = '';
+    let contadorCartela = 1;
+    listaCorretores.forEach((c, index) => {
+        const inicio = contadorCartela; const fim = contadorCartela + c.qtd - 1; contadorCartela += c.qtd;
+        const tr = document.createElement('tr'); tr.style.borderBottom = "1px solid #eee";
+        tr.innerHTML = `<td style="padding: 10px; font-weight:600;">${c.nome}</td><td style="padding: 10px;">${c.qtd}</td><td style="padding: 10px; font-family:monospace;">#${String(inicio).padStart(3,'0')} até #${String(fim).padStart(3,'0')}</td><td style="padding: 10px; text-align: right;"><button onclick="removerCorretorLista(${index})" style="padding: 5px 10px; background: #e74c3c !important; color: white !important; font-size:12px; border-radius:5px; border:none; cursor:pointer;">Excluir</button></td>`;
+        corpo.appendChild(tr);
+    });
+    document.getElementById('total-cartelas-distribuidas').textContent = `Total de cartelas mapeadas: ${contadorCartela - 1}`;
+}
+
 async function gerarPDFCartelas() {
     const qtd = parseInt(document.getElementById('qtd-imprimir').value);
     if (!qtd || qtd <= 0) return alert("Digite a quantidade.");
@@ -82,26 +131,22 @@ async function gerarPDFNominativo() {
 
 function desenhoLinhaSuave(doc, x1, y1, x2, y2) { doc.setDrawColor(230); doc.setLineWidth(0.2); doc.line(x1, y1, x2, y2); }
 
-// --- FUNÇÃO DE DESENHO COM PROPORÇÃO CORRIGIDA AUTOMATICAMENTE ---
 function desenharCartelaNoPDF(doc, id, dados, indexPagina, logoTopo, logoCentro, nomeDono = null) {
     const largura = 90, altura = 110, margemX = 15, margemY = 15;
     const colPDF = indexPagina % 2, linPDF = Math.floor(indexPagina / 2);
     const x = margemX + (colPDF * (largura + 10)), y = margemY + (linPDF * (altura + 15));
     
-    // Configura a largura ideal que você quer na folha (ex: 50mm)
     const larguraDesejadaLogo = 50; 
-    let altLogo = 8; // Altura padrão fallback
+    let altLogo = 8; 
     
-    if (logoTopo) {
-        // CÁLCULO DE PROPORÇÃO: Altura = Largura Desejada * (Altura Original / Largura Original)
+    // Tratamento seguro do objeto de imagem para evitar quebras no processamento
+    if (logoTopo && logoTopo.dataUrl) {
         altLogo = larguraDesejadaLogo * (logoTopo.hOriginal / logoTopo.wOriginal);
         try { 
-            // Posiciona centralizado e com a proporção nativa perfeita
             doc.addImage(logoTopo.dataUrl, 'PNG', x + (largura - larguraDesejadaLogo)/2, y + 2, larguraDesejadaLogo, altLogo); 
-        } catch(e){} 
+        } catch(e){ console.error("Erro ao renderizar logo topo:", e); } 
     }
     
-    // Alinha os textos e linhas dinamicamente baseando-se no fim vertical da logo calculada
     const topoInformacoesY = y + 4 + altLogo;
     
     if (nomeDono) {
@@ -113,7 +158,6 @@ function desenharCartelaNoPDF(doc, id, dados, indexPagina, logoTopo, logoCentro,
     doc.setFont("Helvetica", "normal"); doc.setFontSize(9); doc.setTextColor(100);
     doc.text(`Nº ${String(id).padStart(3, '0')}`, x + largura - 2, topoInformacoesY, { align: 'right' });
     
-    // O grid do BINGO inicia logo abaixo respeitando o espaço calculado
     const gridY = topoInformacoesY + 3.5, tam = 16, letras = ['B', 'I', 'N', 'G', 'O'];
     letras.forEach((l, i) => {
         doc.setFillColor(...((l === 'I' || l === 'G') ? COR_AMARELO : COR_AZUL));
@@ -124,8 +168,9 @@ function desenharCartelaNoPDF(doc, id, dados, indexPagina, logoTopo, logoCentro,
             const cX = x + (i * tam), cY = gridY + tam + (r * tam);
             doc.setDrawColor(200); doc.roundedRect(cX, cY, tam, tam, 1.5, 1.5, 'S');
             if (i === 2 && r === 2) {
-                if (logoCentro) try { doc.addImage(logoCentro.dataUrl, 'PNG', cX + 3, cY + 3, tam - 6, tam - 6); } catch(e){}
-                else { doc.setFontSize(7); doc.text("FREE", cX + 8, cY + 9, { align: 'center' }); }
+                if (logoCentro && logoCentro.dataUrl) {
+                    try { doc.addImage(logoCentro.dataUrl, 'PNG', cX + 3, cY + 3, tam - 6, tam - 6); } catch(e){}
+                } else { doc.setFontSize(7); doc.text("FREE", cX + 8, cY + 9, { align: 'center' }); }
             } else {
                 doc.setFontSize(16); doc.setTextColor(50); doc.text(String(dados[l.toLowerCase()][r]), cX + 8, cY + 11, { align: 'center' });
             }
