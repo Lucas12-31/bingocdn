@@ -149,7 +149,9 @@ function desenharCartelaNoPDF(doc, id, dados, indexPagina, logoTopo, logoCentro,
     if (logoTopo && logoTopo.dataUrl) {
         altLogo = larguraDesejadaLogo * (logoTopo.hOriginal / logoTopo.wOriginal);
         try { 
-            doc.addImage(logoTopo.dataUrl, 'JPEG', x + (largura - larguraDesejadaLogo)/2, y + 2, larguraDesejadaLogo, altLogo); 
+            // CORREÇÃO: Removido o cálculo de centralização. Passando apenas 'x' 
+            // para alinhar perfeitamente à esquerda com o nome do corretor.
+            doc.addImage(logoTopo.dataUrl, 'JPEG', x, y + 2, larguraDesejadaLogo, altLogo); 
         } catch(e){ console.error("Erro ao renderizar logo topo:", e); } 
     }
     
