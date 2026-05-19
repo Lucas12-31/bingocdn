@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Configuração de Cartelas - Casa de Negócios</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+</head>
+<body>
+    <div class="container-telao">
+        <aside class="lateral">
+            <img src="simbolo.png" class="logo-lateral" alt="Símbolo">
+        </aside>
+
+        <div class="container-principal">
+            <header class="barra-topo" style="border-bottom: 2px solid var(--cinza-borda); padding-bottom: 15px; margin-bottom: 20px;">
+                <div class="logo-container">
+                    <img src="logo.png" alt="Logo" class="logo-site">
+                </div>
+                <h2>Painel Administrativo de Cartelas</h2>
+            </header>
+
+            <div style="margin-bottom: 20px;">
+                <a href="index.html" style="color: var(--azul-escuro); font-size: 16px; text-decoration: none; font-weight: bold;">⬅️ Voltar para o Telão de Sorteio</a>
+            </div>
+
+            <section class="painel-cartelas" style="background: #f8f9fa; padding: 25px; border-radius: 20px; border: 1px solid var(--cinza-borda);">
+                <h3>Impressão de Arquivos PDF</h3>
+                <p id="status-geracao-pdf" style="font-weight: bold; color: var(--azul-escuro); font-size: 16px;">Status: Pronto para gerar.</p>
+                
+                <div class="controles-cartela" style="margin-bottom: 25px;">
+                    <label style="font-weight: bold;">Quantidade para PDF Simples:</label>
+                    <input type="number" id="qtd-imprimir" value="220" min="1" max="640" style="margin-right: 10px;">
+                    <button id="btn-gerar-pdf" onclick="gerarPDFCartelas()">Gerar PDF Simples</button>
+                    <button id="btn-abrir-distribuicao" onclick="abrirModalDistribuicao()" style="background-color: var(--azul-escuro) !important; color: white !important; margin-left: 10px;">Atribuir Nomes e Gerar PDF</button>
+                </div>
+            </section>
+        </div>
+
+        <aside class="lateral">
+            <img src="simbolo.png" class="logo-lateral" alt="Símbolo">
+        </aside>
+    </div>
+
+    <div id="modal-distribuicao" class="modal-overlay escondida">
+        <div class="modal-content" style="width: 700px; max-height: 85vh; display: flex; flex-direction: column;">
+            <div class="modal-header" style="font-size: 32px; font-weight: 900; color: var(--azul-escuro);">Atribuir Nomes às Cartelas</div>
+            
+            <div style="display: flex; gap: 10px; margin-bottom: 15px; justify-content: center;">
+                <input type="text" id="corretor-nome" placeholder="Nome do Corretor" style="padding: 10px; border: 1px solid var(--cinza-borda); border-radius: 10px; flex: 1; font-size: 16px;">
+                <input type="number" id="corretor-qtd" value="1" min="1" max="100" style="padding: 10px; border: 1px solid var(--cinza-borda); border-radius: 10px; width: 80px; font-size: 16px;">
+                <button onclick="adicionarCorretorLista()" style="background-color: var(--amarelo) !important; color: var(--azul-escuro) !important; font-weight: bold; border-radius: 10px; padding: 10px 20px; border:none; cursor:pointer;">Adicionar</button>
+            </div>
+
+            <div style="flex: 1; overflow-y: auto; background: #f8f9fa; border-radius: 12px; padding: 15px; border: 1px solid var(--cinza-borda); margin-bottom: 15px;">
+                <table style="width: 100%; border-collapse: collapse; text-align: left;" id="tabela-corretores">
+                    <thead>
+                        <tr style="border-bottom: 2px solid var(--cinza-borda); color: var(--azul-escuro); font-weight: bold;">
+                            <th style="padding: 8px;">Corretor</th>
+                            <th style="padding: 8px;">Qtd.</th>
+                            <th style="padding: 8px;">Intervalo Cartelas</th>
+                            <th style="padding: 8px; text-align: right;">Ação</th>
+                        </tr>
+                    </thead>
+                    <tbody id="lista-corretores-corpo"></tbody>
+                </table>
+            </div>
+
+            <div style="font-size: 16px; font-weight: bold; margin-bottom: 15px; color: var(--texto-suave);" id="total-cartelas-distribuidas">
+                Total de cartelas mapeadas: 0
+            </div>
+
+            <div class="modal-footer" style="display: flex; justify-content: space-between; margin-top: 0; padding-top: 10px;">
+                <button onclick="fecharModalDistribuicao()" style="background-color: #e2e6ea; color: var(--texto-suave); padding: 10px 20px; border-radius: 10px; border:none; cursor:pointer; font-weight: 600;">Cancelar</button>
+                <button onclick="gerarPDFNominativo()" style="background-color: var(--azul-escuro) !important; color: white !important; padding: 10px 20px; border-radius: 10px; border:none; cursor:pointer; font-weight: 600;">Gerar PDF com Nomes</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="cartelas.js"></script>
+</body>
+</html>
