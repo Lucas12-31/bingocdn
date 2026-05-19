@@ -1,4 +1,4 @@
-// --- script.js (Focado estritamente no Painel do Telão e Validação) ---
+// --- script.js (Focado no Painel do Telão e Validação Dinâmica) ---
 
 const COR_AZUL = [0, 45, 83];
 const COR_AMARELO = [243, 171, 0];
@@ -14,7 +14,6 @@ function seededRandom(seed) {
     return x - Math.floor(x);
 }
 
-// LÓGICA MATEMÁTICA MANTIDA IDENTICA PARA VALIDAR CERTO
 function gerarNumerosCartelaFixa(idCartela) {
     const cartela = { b: [], i: [], n: [], g: [], o: [] };
     let seed = idCartela * 123.45;
@@ -51,7 +50,7 @@ function iniciarJogoCompleto() {
     
     jogoAtActive = true; 
     document.getElementById('area-sorteio').classList.remove('escondida');
-    document.getElementById('painel-setup-jogo').classList.add('escondida'); // Esconde o painel inicial para limpar o telão
+    document.getElementById('painel-setup-jogo').classList.add('escondida');
     document.getElementById('status-bingo').textContent = "Jogo iniciado!";
 }
 
