@@ -39,18 +39,32 @@ function seededRandom(seed) {
     return x - Math.floor(x);
 }
 
+// --- NOVA LÓGICA DE ALEATORIEDADE COMPLETA POR LINHA ---
 function gerarNumerosCartelaFixa(idCartela) {
     const cartela = { b: [], i: [], n: [], g: [], o: [] };
     let seed = idCartela * 123.45;
     const intervalos = { b: [1, 15], i: [16, 30], n: [31, 45], g: [46, 60], o: [61, 75] };
+    
+    // 1. Seleciona os 5 números aleatórios válidos para cada coluna
     for (let letra in intervalos) {
         let min = intervalos[letra][0], max = intervalos[letra][1];
         let opçoes = Array.from({ length: max - min + 1 }, (_, i) => min + i);
+        
         for (let j = 0; j < 5; j++) {
             let index = Math.floor(seededRandom(seed++) * opçoes.length);
             cartela[letra].push(opçoes.splice(index, 1)[0]);
         }
-        cartela[letra].sort((a, b) => a - b);
+        
+        // REMOVIDO: O método .sort() que organizava em ordem crescente foi retirado.
+        
+        // 2. EMBARALHAMENTO SEEDADO: Embaralha a ordem das linhas de cada coluna
+        // usando o algoritmo de Fisher-Yates baseado na ID da cartela.
+        for (let r = cartela[letra].length - 1; r > 0; r--) {
+            let j = Math.floor(seededRandom(seed++) * (r + 1));
+            let temp = cartela[letra][r];
+            cartela[letra][r] = cartela[letra][j];
+            cartela[letra][j] = temp;
+        }
     }
     return cartela;
 }
