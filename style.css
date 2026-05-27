@@ -47,7 +47,7 @@ body, html {
     padding-bottom: 15px; margin-bottom: 20px;
 }
 
-.logo-site { max-width: 220px; }
+.logo-site { max-width: 250px; }
 
 .numero-grande-header {
     font-size: 100px; font-weight: bold; color: var(--azul-escuro);
