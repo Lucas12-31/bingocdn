@@ -14,7 +14,7 @@ function seededRandom(seed) {
     return x - Math.floor(x);
 }
 
-// --- NOVA LÓGICA DE ALEATORIEDADE COMPLETA POR LINHA ---
+// --- LÓGICA DE ALEATORIEDADE COMPLETA POR LINHA ---
 function gerarNumerosCartelaFixa(idCartela) {
     const cartela = { b: [], i: [], n: [], g: [], o: [] };
     let seed = idCartela * 123.45;
@@ -30,10 +30,7 @@ function gerarNumerosCartelaFixa(idCartela) {
             cartela[letra].push(opçoes.splice(index, 1)[0]);
         }
         
-        // REMOVIDO: O método .sort() que organizava em ordem crescente foi retirado.
-        
         // 2. EMBARALHAMENTO SEEDADO: Embaralha a ordem das linhas de cada coluna
-        // usando o algoritmo de Fisher-Yates baseado na ID da cartela.
         for (let r = cartela[letra].length - 1; r > 0; r--) {
             let j = Math.floor(seededRandom(seed++) * (r + 1));
             let temp = cartela[letra][r];
@@ -84,8 +81,14 @@ function sortearNumero() {
     let textoStatus = `Último número sorteado: <strong>${num}</strong>`;
     
     if (novosVencedores.length > 0) {
-        novosVencedores.forEach(v => { if (!statusGanhadores[v.id]) statusGanhadores[v.id] = []; statusGanhadores[v.id].push(v.motivo); });
-        const idsTexto = novosVencedores.map(v => `nº ${v.id} (${v.motivo})`).join(', ');
+        novosVencedores.forEach(v => { 
+            if (!statusGanhadores[v.id]) statusGanhadores[v.id] = []; 
+            statusGanhadores[v.id].push(v.motivo); 
+        });
+        
+        // CORREÇÃO AQUI: Removido o preenchimento estático dos parênteses "()"
+        const idsTexto = novosVencedores.map(v => `nº ${v.id}`).join(', ');
+        
         status.innerHTML = `${textoStatus} <br> <span style="color: var(--azul-escuro);">🎉 BINGO! Cartela(s) ${idsTexto}</span>`;
         abrirModalBingo(num, idsTexto);
     } else { 
@@ -105,17 +108,34 @@ function verificarBingo() {
     const querLinhaColuna = document.getElementById('check-linha-coluna').checked;
     const querCheia = document.getElementById('check-cheia').checked;
     let vencedores = [];
+    
     for (let id = 1; id <= qtdCartelasJogando; id++) {
         if (statusGanhadores[id] && statusGanhadores[id].includes("FECHOU A CARTELA")) continue;
-        const dados = gerarNumerosCartelaFixa(id); const letras = ['b', 'i', 'n', 'g', 'o']; let matriz = [];
-        for (let r = 0; r < 5; r++) { matriz[r] = []; for (let c = 0; c < 5; c++) matriz[r][c] = (r === 2 && c === 2) ? true : numerosSorteados.includes(dados[letras[c]][r]); }
-        if (querLinhaColuna && (!statusGanhadores[id] || !statusGanhadores[id].includes)) {
+        
+        const dados = gerarNumerosCartelaFixa(id); 
+        const letras = ['b', 'i', 'n', 'g', 'o']; 
+        let matriz = [];
+        
+        for (let r = 0; r < 5; r++) { 
+            matriz[r] = []; 
+            for (let c = 0; c < 5; c++) {
+                matriz[r][c] = (r === 2 && c === 2) ? true : numerosSorteados.includes(dados[letras[c]][r]); 
+            }
+        }
+        
+        // CORREÇÃO: Ajustada a sintaxe da checagem do array de ganhadores anteriores
+        if (querLinhaColuna && (!statusGanhadores[id] || !statusGanhadores[id].includes("LINHA/COLUNA"))) {
             let ganhou = false;
             for (let r = 0; r < 5; r++) if (matriz[r].every(v => v)) ganhou = true;
             for (let c = 0; c < 5; c++) if ([0,1,2,3,4].every(r => matriz[r][c])) ganhou = true;
-            if (ganhou) vencedores.push({ id, motivo: "" });
+            if (ganhou) vencedores.push({ id, motivo: "LINHA/COLUNA" });
         }
-        if (querCheia) { let total = 0; matriz.forEach(l => l.forEach(v => { if(v) total++; })); if (total === 25) vencedores.push({ id, motivo: "FECHOU A CARTELA" }); }
+        
+        if (querCheia) { 
+            let total = 0; 
+            matriz.forEach(l => l.forEach(v => { if(v) total++; })); 
+            if (total === 25) vencedores.push({ id, motivo: "FECHOU A CARTELA" }); 
+        }
     }
     return vencedores;
 }
