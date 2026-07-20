@@ -1,4 +1,4 @@
-// --- script.js (Focado no Painel do Telão e Validação Dinâmica) ---
+// --- script.js (Telão e Validação) ---
 
 const COR_AZUL = [0, 45, 83];
 const COR_AMARELO = [243, 171, 0];
@@ -14,13 +14,12 @@ function seededRandom(seed) {
     return x - Math.floor(x);
 }
 
-// --- LÓGICA DE ALEATORIEDADE COMPLETA POR LINHA ---
+// ALEATORIEDADE COMPLETA POR LINHA (Fisher-Yates)
 function gerarNumerosCartelaFixa(idCartela) {
     const cartela = { b: [], i: [], n: [], g: [], o: [] };
     let seed = idCartela * 123.45;
     const intervalos = { b: [1, 15], i: [16, 30], n: [31, 45], g: [46, 60], o: [61, 75] };
     
-    // 1. Seleciona os 5 números aleatórios válidos para cada coluna
     for (let letra in intervalos) {
         let min = intervalos[letra][0], max = intervalos[letra][1];
         let opçoes = Array.from({ length: max - min + 1 }, (_, i) => min + i);
@@ -30,7 +29,6 @@ function gerarNumerosCartelaFixa(idCartela) {
             cartela[letra].push(opçoes.splice(index, 1)[0]);
         }
         
-        // 2. EMBARALHAMENTO SEEDADO: Embaralha a ordem das linhas de cada coluna
         for (let r = cartela[letra].length - 1; r > 0; r--) {
             let j = Math.floor(seededRandom(seed++) * (r + 1));
             let temp = cartela[letra][r];
@@ -86,7 +84,7 @@ function sortearNumero() {
             statusGanhadores[v.id].push(v.motivo); 
         });
         
-        // CORREÇÃO AQUI: Removido o preenchimento estático dos parênteses "()"
+        // Texto formatado de forma totalmente clean, sem parênteses
         const idsTexto = novosVencedores.map(v => `nº ${v.id}`).join(', ');
         
         status.innerHTML = `${textoStatus} <br> <span style="color: var(--azul-escuro);">🎉 BINGO! Cartela(s) ${idsTexto}</span>`;
@@ -96,10 +94,30 @@ function sortearNumero() {
     }
 }
 
+// Abertura da Modal com Censura Ativa
 function abrirModalBingo(numero, cartelas) {
     document.getElementById('modal-numero-vencedor').textContent = numero;
-    document.getElementById('modal-cartelas-vencedoras').innerHTML = `Cartela(s): <br> <strong>${cartelas}</strong>`;
+    
+    const elementoCartelas = document.getElementById('modal-cartelas-vencedoras');
+    elementoCartelas.textContent = cartelas;
+    elementoCartelas.classList.add('censurado');
+    
+    document.getElementById('btn-revelar').textContent = '👁️';
     document.getElementById('modal-bingo').classList.remove('escondida');
+}
+
+// Função do Botão de Olho
+function alternarRevelacaoCartelas() {
+    const elementoCartelas = document.getElementById('modal-cartelas-vencedoras');
+    const btnOlho = document.getElementById('btn-revelar');
+    
+    if (elementoCartelas.classList.contains('censurado')) {
+        elementoCartelas.classList.remove('censurado');
+        btnOlho.textContent = '🙈';
+    } else {
+        elementoCartelas.classList.add('censurado');
+        btnOlho.textContent = '👁️';
+    }
 }
 
 function fecharModalBingo() { document.getElementById('modal-bingo').classList.add('escondida'); }
@@ -123,7 +141,6 @@ function verificarBingo() {
             }
         }
         
-        // CORREÇÃO: Ajustada a sintaxe da checagem do array de ganhadores anteriores
         if (querLinhaColuna && (!statusGanhadores[id] || !statusGanhadores[id].includes("LINHA/COLUNA"))) {
             let ganhou = false;
             for (let r = 0; r < 5; r++) if (matriz[r].every(v => v)) ganhou = true;
