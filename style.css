@@ -1,3 +1,5 @@
+/* --- style.css (Unificado) --- */
+
 :root {
     --azul-escuro: #002d53;
     --amarelo: #f3ab00;
@@ -17,37 +19,24 @@ body, html {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 
-.container-telao {
-    display: flex;
-    width: 100vw; height: 100vh;
-    overflow: hidden;
-}
+.container-telao { display: flex; width: 100vw; height: 100vh; overflow: hidden; }
 
 .lateral {
-    flex: 0 0 500px;
-    display: flex; align-items: center; justify-content: center;
-    background-color: var(--branco);
-    padding: 20px;
+    flex: 0 0 500px; display: flex; align-items: center; justify-content: center;
+    background-color: var(--branco); padding: 20px;
 }
-
 .logo-lateral { width: 100%; max-width: 350px; opacity: 0.15; }
 
 .container-principal {
-    flex: 1; height: 100vh;
-    background: var(--branco);
-    padding: 25px;
-    box-shadow: 0 0 40px rgba(0,0,0,0.05);
-    display: flex; flex-direction: column;
-    overflow-y: auto;
+    flex: 1; height: 100vh; background: var(--branco); padding: 25px;
+    box-shadow: 0 0 40px rgba(0,0,0,0.05); display: flex; flex-direction: column; overflow-y: auto;
 }
 
 .barra-topo {
     display: flex; justify-content: space-between; align-items: center;
-    border-bottom: 2px solid var(--cinza-borda);
-    padding-bottom: 15px; margin-bottom: 20px;
+    border-bottom: 2px solid var(--cinza-borda); padding-bottom: 15px; margin-bottom: 20px;
 }
-
-.logo-site { max-width: 300px; }
+.logo-site { max-width: 220px; }
 
 .numero-grande-header {
     font-size: 100px; font-weight: bold; color: var(--azul-escuro);
@@ -57,19 +46,13 @@ body, html {
 }
 
 .status-bingo {
-    text-align: center; font-size: 22px; padding: 15px;
-    background: #f8f9fa; border-radius: 15px; margin: 15px 0;
-    font-weight: 600; border: 1px solid #eee;
-    line-height: 1.4;
+    text-align: center; font-size: 22px; padding: 15px; background: #f8f9fa;
+    border-radius: 15px; margin: 15px 0; font-weight: 600; border: 1px solid #eee; line-height: 1.4;
 }
 
-.status-bingo strong { font-size: 45px; color: var(--azul-escuro); margin-left: 10px; }
-.status-bingo span { font-weight: bold; display: inline-block; margin-top: 5px; }
-
 .container-principal button {
-    padding: 10px 20px; cursor: pointer; border: none;
-    border-radius: 10px; font-weight: 600; font-size: 16px;
-    transition: all 0.2s ease;
+    padding: 10px 20px; cursor: pointer; border: none; border-radius: 10px;
+    font-weight: 600; font-size: 16px; transition: all 0.2s ease;
 }
 
 #btn-gerar-pdf { background-color: var(--amarelo) !important; color: var(--azul-escuro) !important; }
@@ -79,10 +62,8 @@ body, html {
 #btn-reiniciar { background-color: #e2e6ea !important; color: var(--texto-suave) !important; }
 #btn-reiniciar:hover { background-color: #ced4da !important; }
 
-input[type="number"] {
-    width: 80px; padding: 10px; border: 1px solid var(--cinza-borda);
-    border-radius: 10px; font-size: 16px;
-}
+input[type="number"], input[type="text"] { padding: 10px; border: 1px solid var(--cinza-borda); border-radius: 10px; font-size: 16px; }
+input[type="number"] { width: 80px; }
 
 .controles-cartela, .controles-jogo, .controles-regras { display: flex; align-items: center; gap: 15px; margin-bottom: 15px; }
 
@@ -93,12 +74,9 @@ input[type="number"] {
 .number-cells { display: grid; grid-template-columns: repeat(2, 55px); gap: 10px; justify-content: center; margin-top: 15px; }
 
 .cell {
-    width: 55px; height: 55px; border-radius: 50%;
-    background-color: #fff; border: 1px solid var(--cinza-borda);
-    display: flex; justify-content: center; align-items: center;
-    font-size: 22px; font-weight: bold; color: #ccc; transition: all 0.3s;
+    width: 55px; height: 55px; border-radius: 50%; background-color: #fff; border: 1px solid var(--cinza-borda);
+    display: flex; justify-content: center; align-items: center; font-size: 22px; font-weight: bold; color: #ccc; transition: all 0.3s;
 }
-
 .cell.drawn { transform: scale(1.15); box-shadow: 0 5px 15px rgba(0,0,0,0.2); }
 .col-b .cell.drawn, .col-n .cell.drawn, .col-o .cell.drawn { background: var(--amarelo); color: var(--azul-escuro); border-color: #d19300; }
 .col-i .cell.drawn, .col-g .cell.drawn { background: var(--azul-escuro); color: var(--amarelo); border-color: #001a30; }
@@ -107,47 +85,35 @@ input[type="number"] {
 .botoes-sorteio { text-align: center; margin-top: 10px; margin-bottom: 20px; }
 @media (max-width: 1800px) { .lateral { display: none; } }
 
-/* --- ESTILOS DAS JANELAS MODAIS --- */
+/* --- MODAIS GERAIS E EFEITO BLUR DE CENSURA --- */
 .modal-overlay {
-    position: fixed;
-    top: 0; left: 0;
-    width: 100vw; height: 100vh;
-    background-color: rgba(0, 0, 0, 0.75);
-    display: flex; align-items: center; justify-content: center;
-    z-index: 9999;
-    animation: fadeIn 0.3s ease;
+    position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+    background-color: rgba(0, 0, 0, 0.75); display: flex; align-items: center; justify-content: center; z-index: 9999;
 }
-
 .modal-content {
-    background: var(--branco);
-    width: 600px;
-    border-radius: 25px;
-    box-shadow: 0 15px 40px rgba(0,0,0,0.3);
-    padding: 35px;
-    text-align: center;
-    border: 3px solid var(--amarelo);
-    transform: scale(1);
-    animation: scaleUp 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    background: var(--branco); width: 600px; border-radius: 25px; box-shadow: 0 15px 40px rgba(0,0,0,0.3); padding: 35px; text-align: center; border: 3px solid var(--amarelo);
 }
-
-.modal-header {
-    font-size: 45px;
-    font-weight: 900;
-    color: var(--azul-escuro);
-    margin-bottom: 15px;
-    letter-spacing: 2px;
-}
-
+.modal-header { font-size: 45px; font-weight: 900; color: var(--azul-escuro); margin-bottom: 15px; letter-spacing: 2px; }
 .modal-label-num { font-size: 16px; color: var(--texto-suave); text-transform: uppercase; font-weight: bold; margin-bottom: 5px; }
-.modal-num-bola {
-    width: 120px; height: 120px; background: var(--amarelo); color: var(--azul-escuro); font-size: 65px; font-weight: bold;
-    border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 10px auto 25px auto; box-shadow: 0 8px 20px rgba(243, 171, 0, 0.4);
+.modal-num-bola { width: 120px; height: 120px; background: var(--amarelo); color: var(--azul-escuro); font-size: 65px; font-weight: bold; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 10px auto 25px auto; box-shadow: 0 8px 20px rgba(243, 171, 0, 0.4); }
+
+.modal-cards-container {
+    background: #f8f9fa; padding: 15px; border-radius: 15px; border: 1px dashed var(--cinza-borda); margin-top: 15px;
+}
+.modal-cards-wrapper {
+    display: flex; align-items: center; justify-content: center; gap: 15px; margin-top: 5px;
+}
+.modal-cards-list {
+    font-size: 28px; color: var(--azul-escuro); font-weight: 800; transition: filter 0.3s ease, opacity 0.3s ease;
+}
+.modal-cards-list.censurado {
+    filter: blur(8px); user-select: none; opacity: 0.6;
 }
 
-.modal-cards-list { font-size: 26px; color: #2c3e50; font-weight: bold; background: #f8f9fa; padding: 15px; border-radius: 12px; border: 1px dashed var(--cinza-borda); }
-.modal-footer { margin-top: 30px; }
-#btn-fechar-modal { background-color: var(--azul-escuro); color: white; font-size: 18px; font-weight: bold; padding: 12px 35px; border-radius: 12px; box-shadow: 0 4px 10px rgba(0, 45, 83, 0.2); }
-#btn-fechar-modal:hover { background-color: #00457a; transform: translateY(-2px); }
-
-@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-@keyframes scaleUp { from { transform: scale(0.8); } to { transform: scale(1); } }
+.btn-olho {
+    background: var(--amarelo) !important; border: none !important; font-size: 20px !important;
+    padding: 8px 12px !important; border-radius: 50% !important; cursor: pointer;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15); transition: transform 0.2s ease, background 0.2s ease !important;
+    display: flex; align-items: center; justify-content: center;
+}
+.btn-olho:hover { transform: scale(1.15); background: #e09d00 !important; }
