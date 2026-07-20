@@ -117,3 +117,23 @@ input[type="number"] { width: 80px; }
     display: flex; align-items: center; justify-content: center;
 }
 .btn-olho:hover { transform: scale(1.15); background: #e09d00 !important; }
+
+/* --- BOTÃO DE CONTINUAR SORTEIO NA MODAL --- */
+#btn-fechar-modal {
+    background-color: var(--azul-escuro) !important;
+    color: var(--branco) !important;
+    border: none;
+    padding: 12px 30px;
+    border-radius: 10px;
+    font-weight: bold;
+    font-size: 18px;
+    cursor: pointer;
+    transition: transform 0.2s ease, background 0.2s ease;
+    margin-top: 15px;
+    box-shadow: 0 4px 10px rgba(0, 45, 83, 0.2);
+}
+
+#btn-fechar-modal:hover {
+    background-color: #00457a !important;
+    transform: translateY(-2px);
+}
