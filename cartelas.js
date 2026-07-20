@@ -1,17 +1,13 @@
-// --- cartelas.js (Gerenciador de Impressão de Cartelas) ---
+// --- cartelas.js (Gerador de Arquivos com Layout Estável e Fisher-Yates) ---
 
 const COR_AZUL = [0, 45, 83];
 const COR_AMARELO = [243, 171, 0];
 let listaCorretores = [];
 
-// --- 1. PROCESSO DE IMAGENS PARA A BIBLIOTECA PDF ---
 function carregarImagem(caminho) {
     return new Promise((resolve) => {
         const img = new Image();
-        const timeout = setTimeout(() => { 
-            console.warn(`Tempo limite esgotado para: ${caminho}`);
-            resolve(null); 
-        }, 5000);
+        const timeout = setTimeout(() => { resolve(null); }, 5000);
         img.onload = function () {
             clearTimeout(timeout);
             const canvas = document.createElement('canvas');
@@ -33,19 +29,16 @@ function carregarImagem(caminho) {
     });
 }
 
-// --- 2. LÓGICA MATEMÁTICA DA CARTELA (Puro JS - Sem dependência da biblioteca) ---
 function seededRandom(seed) {
     const x = Math.sin(seed++) * 10000;
     return x - Math.floor(x);
 }
 
-// --- NOVA LÓGICA DE ALEATORIEDADE COMPLETA POR LINHA ---
 function gerarNumerosCartelaFixa(idCartela) {
     const cartela = { b: [], i: [], n: [], g: [], o: [] };
     let seed = idCartela * 123.45;
     const intervalos = { b: [1, 15], i: [16, 30], n: [31, 45], g: [46, 60], o: [61, 75] };
     
-    // 1. Seleciona os 5 números aleatórios válidos para cada coluna
     for (let letra in intervalos) {
         let min = intervalos[letra][0], max = intervalos[letra][1];
         let opçoes = Array.from({ length: max - min + 1 }, (_, i) => min + i);
@@ -55,10 +48,6 @@ function gerarNumerosCartelaFixa(idCartela) {
             cartela[letra].push(opçoes.splice(index, 1)[0]);
         }
         
-        // REMOVIDO: O método .sort() que organizava em ordem crescente foi retirado.
-        
-        // 2. EMBARALHAMENTO SEEDADO: Embaralha a ordem das linhas de cada coluna
-        // usando o algoritmo de Fisher-Yates baseado na ID da cartela.
         for (let r = cartela[letra].length - 1; r > 0; r--) {
             let j = Math.floor(seededRandom(seed++) * (r + 1));
             let temp = cartela[letra][r];
@@ -69,7 +58,6 @@ function gerarNumerosCartelaFixa(idCartela) {
     return cartela;
 }
 
-// --- 3. CONTROLE DA LISTA DE CORRETORES ---
 function abrirModalDistribuicao() { document.getElementById('modal-distribuicao').classList.remove('escondida'); renderizarTabelaCorretores(); }
 function fecharModalDistribuicao() { document.getElementById('modal-distribuicao').classList.add('escondida'); }
 
@@ -99,7 +87,6 @@ function renderizarTabelaCorretores() {
     document.getElementById('total-cartelas-distribuidas').textContent = `Total de cartelas mapeadas: ${contadorCartela - 1}`;
 }
 
-// --- 4. RELAÇÃO COM A BIBLIOTECA jspdf (Montagem dos arquivos) ---
 async function gerarPDFCartelas() {
     const qtd = parseInt(document.getElementById('qtd-imprimir').value);
     if (!qtd || qtd <= 0) return alert("Digite a quantidade.");
@@ -135,7 +122,7 @@ async function gerarPDFNominativo() {
     
     let mapaNomes = []; let idAtual = 1;
     listaCorretores.forEach(c => { for(let j=0; j < c.qtd; j++) { mapaNomes[idAtual] = c.nome; idAtual++; } });
-    const totalCartelas = idAtual - 1; status.textContent = "Status: Iniciando generation nominal...";
+    const totalCartelas = idAtual - 1; status.textContent = "Status: Iniciando geração nominal...";
     async function processarBlocoNominativo(inicio) {
         const tamanhoBloco = 20; const fim = Math.min(inicio + tamanhoBloco, totalCartelas);
         for (let i = inicio; i <= fim; i++) {
@@ -163,17 +150,15 @@ function desenharCartelaNoPDF(doc, id, dados, indexPagina, logoTopo, logoCentro,
     if (logoTopo && logoTopo.dataUrl) {
         altLogo = larguraDesejadaLogo * (logoTopo.hOriginal / logoTopo.wOriginal);
         try { 
-            // CORREÇÃO: Removido o cálculo de centralização. Passando apenas 'x' 
-            // para alinhar perfeitamente à esquerda com o nome do corretor.
             doc.addImage(logoTopo.dataUrl, 'JPEG', x, y + 2, larguraDesejadaLogo, altLogo); 
-        } catch(e){ console.error("Erro ao renderizar logo topo:", e); } 
+        } catch(e){ console.error("Erro ao renderizar logo:", e); } 
     }
     
     const topoInformacoesY = y + 4 + altLogo;
     
     if (nomeDono) {
         doc.setFontSize(8); doc.setFont("Helvetica", "bold"); doc.setTextColor(0, 45, 83);
-        doc.text(`Nome: ${nomeDono.toUpperCase()}`, x, topoInformacoesY);
+        doc.text(`Corretor: ${nomeDono.toUpperCase()}`, x, topoInformacoesY);
         desenhoLinhaSuave(doc, x, topoInformacoesY + 1.2, x + largura, topoInformacoesY + 1.2);
     }
     
