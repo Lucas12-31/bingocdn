@@ -4,15 +4,16 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Painel de Sorteio - Casa de Negócios</title>
-    <link rel="icon" type="image/png" href="simbolo.png">
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
     <div class="container-telao">
+        <!-- Lateral Esquerda -->
         <aside class="lateral">
             <img src="simbolo.png" class="logo-lateral" alt="Símbolo">
         </aside>
 
+        <!-- Centro (Sorteador Expandido e Clean) -->
         <div class="container-principal">
             <header class="barra-topo">
                 <div class="logo-container">
@@ -24,19 +25,23 @@
                 </div>
             </header>
 
+            <!-- Link para ir para a administração se precisar -->
             <div style="text-align: right; margin-bottom: 10px;">
                 <a href="cartelas.html" style="color: var(--texto-suave); font-size: 13px; text-decoration: none; font-weight: 600;">⚙️ Ir para Configuração de Cartelas</a>
             </div>
 
             <div id="status-bingo" class="status-bingo">Aguardando início do jogo...</div>
 
+            <!-- Setup Inicial do Jogo -->
             <section class="controles-inicializacao-rapida" id="painel-setup-jogo" style="text-align: center; margin-bottom: 20px; padding: 15px; background: #f8f9fa; border-radius: 12px; border: 1px solid var(--cinza-borda);">
                 <label style="font-weight: 600; color: var(--azul-escuro);">Quantidade de cartelas em jogo:</label>
                 <input type="number" id="qtd-jogando" value="20" min="1" max="640" style="margin: 0 10px;">
                 <button onclick="iniciarJogoCompleto()" style="background-color: var(--azul-escuro) !important; color: white !important; padding: 8px 20px; border-radius: 8px; font-weight: bold; border: none; cursor: pointer;">Iniciar Sorteio</button>
             </section>
 
+            <!-- Área Principal do Tabuleiro -->
             <section id="area-sorteio" class="area-sorteio escondida">
+                <!-- REGRAS DINÂMICAS SEMPRE VISÍVEIS -->
                 <div style="text-align: center; margin-bottom: 15px; padding: 10px; background: #f1f3f5; border-radius: 8px;">
                     <span style="font-weight: bold; color: var(--azul-escuro); margin-right: 15px;">Modo de Validação Ativo:</span>
                     <label style="cursor: pointer; font-weight: 600;"><input type="checkbox" id="check-linha-coluna" checked> Linha/Coluna</label>
@@ -58,18 +63,29 @@
             </section>
         </div>
 
+        <!-- Lateral Direita -->
         <aside class="lateral">
             <img src="simbolo.png" class="logo-lateral" alt="Símbolo">
         </aside>
     </div>
 
+    <!-- MODAL DE ANÚNCIO DE VITÓRIA (COM CENSURA) -->
     <div id="modal-bingo" class="modal-overlay escondida">
         <div class="modal-content">
             <div class="modal-header">🎉 BINGO! 🎉</div>
             <div class="modal-body">
                 <p class="modal-label-num">Número Sorteado</p>
                 <div id="modal-numero-vencedor" class="modal-num-bola">--</div>
-                <div id="modal-cartelas-vencedoras" class="modal-cards-list">Cartela(s): --</div>
+                
+                <div class="modal-cards-container">
+                    <p class="modal-label-num">Cartela(s) Campeã(s):</p>
+                    <div class="modal-cards-wrapper">
+                        <!-- O texto do número fica censurado com blur por padrão -->
+                        <div id="modal-cartelas-vencedoras" class="modal-cards-list censurado">--</div>
+                        <!-- Botão de olho para revelar -->
+                        <button id="btn-revelar" class="btn-olho" onclick="alternarRevelacaoCartelas()" title="Revelar/Censurar Cartelas">👁️</button>
+                    </div>
+                </div>
             </div>
             <div class="modal-footer">
                 <button id="btn-fechar-modal" onclick="fecharModalBingo()">Continuar Sorteio</button>
