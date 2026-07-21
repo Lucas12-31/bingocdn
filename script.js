@@ -84,13 +84,43 @@ function sortearNumero() {
             statusGanhadores[v.id].push(v.motivo); 
         });
         
-        // Texto formatado de forma totalmente clean, sem parênteses
         const idsTexto = novosVencedores.map(v => `nº ${v.id}`).join(', ');
         
-        status.innerHTML = `${textoStatus} <br> <span style="color: var(--azul-escuro);">🎉 BINGO! Cartela(s) ${idsTexto}</span>`;
+        // 🚨 CORREÇÃO: Removemos os números daqui e colocamos uma mensagem de suspense com um ID (texto-alerta-bingo)
+        status.innerHTML = `${textoStatus} <br> <span style="color: var(--azul-escuro);" id="texto-alerta-bingo">🎉 BINGO! Revelando ganhador...</span>`;
+        
         abrirModalBingo(num, idsTexto);
     } else { 
         status.innerHTML = `${textoStatus} (Total: ${numerosSorteados.length})`; 
+    }
+}
+
+// Função do Botão de Olho Atualizada
+function alternarRevelacaoCartelas() {
+    const elementoCartelas = document.getElementById('modal-cartelas-vencedoras');
+    const btnOlho = document.getElementById('btn-revelar');
+    
+    // Pega o aviso que ficou lá no painel de trás
+    const textoFundo = document.getElementById('texto-alerta-bingo'); 
+    
+    if (elementoCartelas.classList.contains('censurado')) {
+        // Tira o blur da modal
+        elementoCartelas.classList.remove('censurado');
+        btnOlho.textContent = '🙈';
+        
+        // 🚨 Sincroniza e revela os números lá no painel de fundo também!
+        if (textoFundo) {
+            textoFundo.innerHTML = `🎉 BINGO! Cartela(s) ${elementoCartelas.textContent}`;
+        }
+    } else {
+        // Coloca o blur de volta na modal
+        elementoCartelas.classList.add('censurado');
+        btnOlho.textContent = '👁️';
+        
+        // Esconde os números do painel de fundo novamente
+        if (textoFundo) {
+            textoFundo.innerHTML = `🎉 BINGO! Revelando ganhador...`;
+        }
     }
 }
 
