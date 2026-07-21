@@ -50,8 +50,8 @@
                 </div>
 
                 <div class="botoes-sorteio">
-                    <button id="btn-sortear" onclick="sortearNumero()">Sortear Próximo Número</button>
-                    <button id="btn-reiniciar" onclick="reiniciarJogo()">Reiniciar Sorteio</button>
+                    <!-- Botão Sortear agora fica sozinho, seguro e mais destacado -->
+                    <button id="btn-sortear" onclick="sortearNumero()" style="padding: 15px 50px; font-size: 22px; box-shadow: 0 5px 15px rgba(0,45,83,0.2);">Sortear Próximo Número</button>
                 </div>
 
                 <main class="bingo-board">
@@ -61,6 +61,13 @@
                     <div class="bingo-column col-g"><div class="header-cell">G</div><div class="number-cells" id="cells-g"></div></div>
                     <div class="bingo-column col-o"><div class="header-cell">O</div><div class="number-cells" id="cells-o"></div></div>
                 </main>
+
+                <!-- Botão de Reiniciar movido para o canto inferior direito e protegido -->
+                <div style="display: flex; justify-content: flex-end; margin-top: 30px; margin-bottom: 20px;">
+                    <button id="btn-reiniciar" onclick="reiniciarJogo()" style="background-color: #dc3545 !important; color: white !important; font-size: 14px; padding: 10px 20px; border-radius: 8px; opacity: 0.5; transition: all 0.3s ease;" onmouseover="this.style.opacity='1'; this.style.transform='scale(1.05)';" onmouseout="this.style.opacity='0.5'; this.style.transform='scale(1)';">
+                        ⚠️ Reiniciar Sorteio
+                    </button>
+                </div>
             </section>
         </div>
 
