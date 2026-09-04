@@ -93,7 +93,7 @@ async function gerarPDFCartelas() {
     const { jsPDF } = window.jspdf; const doc = new jsPDF('p', 'mm', 'a4');
     const status = document.getElementById('status-geracao-pdf'); status.textContent = "Status: Carregando logos...";
     
-    const logoTopo = await carregarImagem('logo.png'); 
+    const logoTopo = await carregarImagem('klini.png'); 
     const logoCentro = await carregarImagem('simbolo.png');
     
     status.textContent = "Status: Iniciando geração...";
