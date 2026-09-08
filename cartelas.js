@@ -1,4 +1,4 @@
-// --- cartelas.js (Gerador de Arquivos com Layout Estável e Fisher-Yates) ---
+// --- cartelas.js (Gerador de Arquivos com Layout Estável, Fisher-Yates e Bulk Paste) ---
 
 const COR_AZUL = [0, 45, 83];
 const COR_AMARELO = [243, 171, 0];
@@ -71,6 +71,39 @@ function adicionarCorretorLista() {
     listaCorretores.push({ nome, qtd });
     nomeInput.value = ''; qtdInput.value = '1';
     renderizarTabelaCorretores();
+}
+
+// --- FUNÇÃO NOVA: ADIÇÃO EM LOTE DA PLANILHA ---
+function adicionarLote() {
+    const texto = document.getElementById('texto-lote').value;
+    if (!texto.trim()) return alert("Cole os dados da planilha primeiro.");
+
+    const linhas = texto.split('\n');
+    let adicionados = 0;
+
+    linhas.forEach(linha => {
+        // O regex /\t|,|-/ identifica separação por Tab (Excel), Vírgula ou Traço
+        const partes = linha.split(/\t|,|-/);
+        
+        if (partes.length >= 2) {
+            const nome = partes[0].trim();
+            // Sempre pega a última coluna como a quantidade, garantindo segurança na leitura
+            const qtdTexto = partes[partes.length - 1].trim();
+            const qtd = parseInt(qtdTexto);
+
+            if (nome && !isNaN(qtd) && qtd > 0) {
+                listaCorretores.push({ nome, qtd });
+                adicionados++;
+            }
+        }
+    });
+
+    if (adicionados > 0) {
+        document.getElementById('texto-lote').value = '';
+        renderizarTabelaCorretores();
+    } else {
+        alert("Não foi possível ler os dados. Certifique-se de usar duas colunas: Nome e Quantidade");
+    }
 }
 
 function removerCorretorLista(index) { listaCorretores.splice(index, 1); renderizarTabelaCorretores(); }
