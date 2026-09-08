@@ -126,7 +126,7 @@ async function gerarPDFCartelas() {
     const { jsPDF } = window.jspdf; const doc = new jsPDF('p', 'mm', 'a4');
     const status = document.getElementById('status-geracao-pdf'); status.textContent = "Status: Carregando logos...";
     
-    const logoTopo = await carregarImagem('porto.png'); 
+    const logoTopo = await carregarImagem('klini.png'); 
     const logoCentro = await carregarImagem('simbolo.png');
     
     status.textContent = "Status: Iniciando geração...";
@@ -150,7 +150,7 @@ async function gerarPDFNominativo() {
     const status = document.getElementById('status-geracao-pdf');
     fecharModalDistribuicao(); status.textContent = "Status: Carregando logotipos...";
     
-    const logoTopo = await carregarImagem('porto.png'); 
+    const logoTopo = await carregarImagem('klini.png'); 
     const logoCentro = await carregarImagem('simbolo.png');
     
     let mapaNomes = []; let idAtual = 1;
