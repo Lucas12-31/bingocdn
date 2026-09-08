@@ -49,10 +49,23 @@
         <div class="modal-content" style="width: 700px; max-height: 85vh; display: flex; flex-direction: column;">
             <div class="modal-header" style="font-size: 32px; font-weight: 900; color: var(--azul-escuro);">Atribuir Nomes às Cartelas</div>
             
-            <div style="display: flex; gap: 10px; margin-bottom: 15px; justify-content: center;">
-                <input type="text" id="corretor-nome" placeholder="Nome do Corretor" style="padding: 10px; border: 1px solid var(--cinza-borda); border-radius: 10px; flex: 1; font-size: 16px;">
-                <input type="number" id="corretor-qtd" value="1" min="1" max="100" style="padding: 10px; border: 1px solid var(--cinza-borda); border-radius: 10px; width: 80px; font-size: 16px;">
-                <button onclick="adicionarCorretorLista()" style="background-color: var(--amarelo) !important; color: var(--azul-escuro) !important; font-weight: bold; border-radius: 10px; padding: 10px 20px; border:none; cursor:pointer;">Adicionar</button>
+            <!-- Bloco Atualizado: Inserção Individual e Em Lote -->
+            <div style="display: flex; flex-direction: column; gap: 15px; margin-bottom: 20px; background: #fff; padding: 15px; border-radius: 12px; border: 1px solid var(--cinza-borda);">
+                
+                <!-- Adição Rápida (1 a 1) -->
+                <div style="display: flex; gap: 10px; align-items: center;">
+                    <input type="text" id="corretor-nome" placeholder="Nome do Corretor" style="flex: 1; padding: 10px; border: 1px solid var(--cinza-borda); border-radius: 10px; font-size: 16px;">
+                    <input type="number" id="corretor-qtd" value="1" min="1" max="100" style="width: 80px; padding: 10px; border: 1px solid var(--cinza-borda); border-radius: 10px; font-size: 16px;">
+                    <button onclick="adicionarCorretorLista()" style="background-color: var(--amarelo) !important; color: var(--azul-escuro) !important; font-weight: bold; border-radius: 10px; padding: 10px 20px; border:none; cursor:pointer;">Adicionar Único</button>
+                </div>
+
+                <div style="text-align: center; color: var(--texto-suave); font-size: 12px; font-weight: bold;">OU COPIE E COLE DIRETO DA PLANILHA 👇</div>
+
+                <!-- Adição em Lote (Bulk Paste) -->
+                <div style="display: flex; gap: 10px; align-items: stretch;">
+                    <textarea id="texto-lote" placeholder="Ex:&#10;Leonardo Jeremias, 50&#10;Amanda Rossi, 30&#10;Jorge, 20" style="flex: 1; height: 80px; padding: 10px; border: 1px solid var(--cinza-borda); border-radius: 10px; font-size: 14px; resize: none; font-family: monospace;"></textarea>
+                    <button onclick="adicionarLote()" style="background-color: var(--azul-escuro) !important; color: white !important; font-weight: bold; border-radius: 10px; padding: 0 20px; border:none; cursor:pointer; width: 140px;">Processar Lote</button>
+                </div>
             </div>
 
             <div style="flex: 1; overflow-y: auto; background: #f8f9fa; border-radius: 12px; padding: 15px; border: 1px solid var(--cinza-borda); margin-bottom: 15px;">
@@ -79,6 +92,10 @@
             </div>
         </div>
     </div>
+
+    <script src="cartelas.js"></script>
+</body>
+</html>
 
     <script src="cartelas.js"></script>
 </body>
