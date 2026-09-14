@@ -41,8 +41,51 @@ function gerarNumerosCartelaFixa(idCartela) {
 
 function iniciarJogoCompleto() {
     qtdCartelasJogando = parseInt(document.getElementById('qtd-jogando').value);
-    if (!qtdCartelasJogando) return alert("Digite a quantidade.");
+    if (!qtdCartelasJogando || qtdCartelasJogando <= 0) return alert("Digite uma quantidade válida de cartelas.");
     
+    // 1. Inicia a Tela de Contagem Regressiva
+    const telaContagem = document.getElementById('tela-contagem');
+    const numContagem = document.getElementById('numero-contagem');
+    
+    telaContagem.classList.remove('escondida'); // Exibe a tela escura
+    
+    let contador = 3;
+    numContagem.textContent = contador;
+    numContagem.style.fontSize = "250px";
+    
+    // Dispara a animação do primeiro número (3)
+    numContagem.classList.remove('anima-contagem');
+    void numContagem.offsetWidth; // Truque para o navegador reiniciar a animação
+    numContagem.classList.add('anima-contagem');
+    
+    // Cria um temporizador que roda a cada 1 segundo (1000ms)
+    const intervalo = setInterval(() => {
+        contador--;
+        
+        if (contador > 0) {
+            // Mostra os números 2 e 1
+            numContagem.textContent = contador;
+            numContagem.classList.remove('anima-contagem');
+            void numContagem.offsetWidth;
+            numContagem.classList.add('anima-contagem');
+        } else if (contador === 0) {
+            // Mostra a mensagem final!
+            numContagem.textContent = "VALENDO!";
+            numContagem.style.fontSize = "150px"; // Diminui a fonte para a palavra caber
+            numContagem.classList.remove('anima-contagem');
+            void numContagem.offsetWidth;
+            numContagem.classList.add('anima-contagem');
+        } else {
+            // Após o "VALENDO!", esconde a tela de contagem e monta o tabuleiro
+            clearInterval(intervalo); // Para o relógio
+            telaContagem.classList.add('escondida');
+            executarSetupJogo(); // Chama a montagem real do tabuleiro abaixo
+        }
+    }, 1000); 
+}
+
+// A lógica original de montagem do tabuleiro foi movida para cá
+function executarSetupJogo() {
     numerosDisponiveis = Array.from({ length: 75 }, (_, i) => i + 1);
     numerosSorteados = []; statusGanhadores = {};
     document.getElementById('numero-sorteado-display').textContent = '--';
