@@ -150,7 +150,7 @@ async function gerarPDFNominativo() {
     const status = document.getElementById('status-geracao-pdf');
     fecharModalDistribuicao(); status.textContent = "Status: Carregando logotipos...";
     
-    const logoTopo = await carregarImagem('klini.png'); 
+    const logoTopo = await carregarImagem('assim.png'); 
     const logoCentro = await carregarImagem('simbolo.png');
     
     let mapaNomes = []; let idAtual = 1;
